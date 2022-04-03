@@ -4,11 +4,12 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const options = {
     swaggerDefinition:{
         info:{
-            title: 'Test API',
+            title: '집ZOOM API',
             version: '1.0.0',
-            description: 'Test API with express',
+            description: '집ZOOM API입니다:)',
         },
-        host: '3.35.141.211:3000',
+        host: 'localhost:3000',
+        // host: '3.35.141.211:3000',
         basePath: '/'
     },
     apis: ['./routes/*.js', './swagger/*']
