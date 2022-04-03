@@ -19,6 +19,7 @@ const mysql = require('mysql2');
 
 // console.log(parsed);
 
+
 const db = mysql.createConnection({
     host: process.argv[2],
     user: process.argv[3],
