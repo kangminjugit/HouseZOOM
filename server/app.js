@@ -51,7 +51,12 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // send error message
-  res.status(err.status || 500).send(err.message);
+  res.status(err.status || 500).json({
+    "error": {
+      "code": err.status,
+      "message": err.message
+    }
+  });
 });
 
 
