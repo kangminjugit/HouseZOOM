@@ -16,27 +16,33 @@ var router = express.Router();
  *      tags: [School]
  *      summary: 전국 시도 리스트 API
  *      produces:
- *      - application/json
+ *      - "application/json; charset=utf-8"
  *      responses:
  *          '200':
  *              description: OK
  *              content:
- *                  application/json:
+ *                  "application/json; charset=utf-8":
  *                      schema:
  *                          type: list
  *                          properities:
  *                              school_location:
  *                                  type: string
  *                                  description: location 
+ *          '404':
+ *              description: Not Found!
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
  *                      
  */
-router.get('/cities', (req, res, next) => {
+router.get('/cities',  (req, res, next) => {
     db.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`, (err, rows, fields) => {
         if(err) {
-            console.log(err);
+            throw err;
         }
         res.send(rows.map(row => row['school_location']));
-    });    
+    });
 });
 
 
@@ -59,7 +65,7 @@ router.get('/cities', (req, res, next) => {
  *          '200':
  *              description: OK
  *              content:
- *                  application/json:
+ *                  "application/json; charset=utf-8":
  *                      schema:
  *                          type: list
  *                          properities:
@@ -69,12 +75,25 @@ router.get('/cities', (req, res, next) => {
  *                              school_name:
  *                                  type: string
  *                                  descipriont: 학교 이름 
+  *          '404':
+ *              description: Not Found
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
  */
 
 router.get(`/location`, (req, res, next) => {
-    db.query('SELECT school_code, school_name FROM school WHERE school_location = ?', [req.query.school_location], (err, rows, fields) => {
+    db.query(
+        'SELECT school_code, school_name FROM school WHERE school_location = ?', [req.query.school_location], (err, rows, fields) => {
         if(err){
-            console.log(err);
+            next(err);
+        }
+        if(!rows.length){
+            const error = new Error('No school in the city!');
+            error.status = 404;
+            next(error);
+            return;
         }
         res.send(rows);
     })
