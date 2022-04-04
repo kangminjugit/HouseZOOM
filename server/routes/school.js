@@ -39,9 +39,18 @@ var router = express.Router();
 router.get('/cities',  (req, res, next) => {
     db.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`, (err, rows, fields) => {
         if(err) {
-            throw err;
+            next(err);
+            return;
         }
-        res.send(rows.map(row => row['school_location']));
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            'status': 'success',
+            'code': 200,
+            'data': {
+                'city_list': rows.map(row => row['school_location'])
+            },
+            'message': null
+        })
     });
 });
 
@@ -51,7 +60,7 @@ router.get('/cities',  (req, res, next) => {
  *  /api/school/location:
  *    get:
  *      tags: [School]
- *      summary: 해당 시/도에 위치한 학교 리스트
+ *      summary: 해당 시/도에 위치한 학교 리스트 API
  *      produces:
  *      - "application/json; charset=utf-8"
  *      parameters:
@@ -88,6 +97,7 @@ router.get(`/location`, (req, res, next) => {
         'SELECT school_code, school_name FROM school WHERE school_location = ?', [req.query.school_location], (err, rows, fields) => {
         if(err){
             next(err);
+            return;
         }
         if(!rows.length){
             const error = new Error('No school in the city!');
@@ -95,7 +105,15 @@ router.get(`/location`, (req, res, next) => {
             next(error);
             return;
         }
-        res.send(rows);
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            'status': 'success',
+            'code': 200,
+            'data': {
+                'school_list': rows
+            },
+            'message': null
+        });
     })
 });
   
