@@ -76,7 +76,7 @@ var router = express.Router();
 router.post(`/`, (req, res, next) => {
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
     if(!req.query.school_code.length || !req.query.name.length || !req.query.auth_code.length || !req.query.year.length){
-        const error = new Error('One of these values is null: school_code, name, auth_code, year');
+        const error = new Error('school_code, name, auth_code, year are required!');
         error.status = 400;
         next(error);
         return;       
@@ -113,4 +113,80 @@ router.post(`/`, (req, res, next) => {
 });
   
 
+
+
+/**
+ * @swagger
+ *  /api/class:
+ *    get:
+ *      tags: [Class]
+ *      summary: 특정 학교, 학년에 대한 반 리스트 API
+ *      produces:
+ *      - "application/json; charset=utf-8"
+ *      parameters:
+ *          - in: query
+ *            name: school_code
+ *            schema:
+ *              type: string
+ *            example: 7021079
+ *            required: true
+ *            description: 표준 학교 코드
+ *          - in: query
+ *            name: year
+ *            schema:
+ *              type: integer
+ *            example: 1
+ *            required: true
+ *            description: 학년
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              class_id:
+ *                                  type: integer
+ *                                  description: 반 아이디
+ *          '400':
+ *              description: school_code, name, auth_code, year 중 하나라도 없으면 에러
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ *          '422':
+ *              description: (school_code, year, name) 세트가 두 개 이상이면 에러 (같은 학교 같은 학년에 같은 이름의 반이 두 개 이상 있으면 안됨)
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ */
+
+ router.get(`/`, (req, res, next) => {
+    // school_code, name, auth_code, year 중 하나라도 없으면 에러
+    if(!req.query.school_code.length || !req.query.year.length){
+        const error = new Error('school_code, year are required!');
+        error.status = 400;
+        next(error);
+        return;       
+    }
+
+
+    db.query(`SELECT id, name  FROM class WHERE school_code = ? AND year = ?`, [req.query.school_code, req.query.year], (err, rows, fields) => {
+        if(err){
+            next(err);
+            return;
+        }    
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'class_list': rows
+            },
+            "message": null
+        });   
+    })
+});
 module.exports = router;
