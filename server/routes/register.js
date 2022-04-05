@@ -1,57 +1,106 @@
 var express = require('express');
 var router = express.Router();
-const db = require('../db/config');
+const pool = require('../db/config');
 const bcrypt = require('bcrypt');
 
 const saltRounds = 10;
-/**
- * @swagger
- * tags:
- *  name: Register
- *  definition: 회원가입
- */
+// /**
+//  * @swagger
+//  * tags:
+//  *  name: Register
+//  *  definition: 회원가입
+//  */
 
 
 // /**
 //  * @swagger
-//  *  /api/student_register:
+//  *  /api/register/teacher:
 //  *    post:
 //  *      tags: [Register]
-//  *      summary: 학생 회원가입 API
-//  *      produces:
-//  *      - "application/json; charset=utf-8"
+//  *      summary: 선생님 회원가입 API
+//  *      consumes:
+//  *          - application/json; charset=utf-8
 //  *      parameters:
-//  *        - in: query
-//  *          name: body
-//  *          description: 학생 회원가입 정보
-//  *          required: true
-//  *          schema:
+//  *         - in: body
+//  *           name: teacher
+//  *           description: 선생님 정보
+//  *           schema:
 //  *              type: object
+//  *              required:
+//  *                  - id, name, password, class_id
 //  *              properties:
 //  *                  id:
 //  *                      type: string
-//  *                  password:
-//  *                      type: string
 //  *                  name:
 //  *                      type: string
-//  *                  group_id:
+//  *                  password:
+//  *                      type: string
+//  *                  class_id:
 //  *                      type: integer
-//  */
-// router.post('/register', (req,res, next) => {
-//   console.log(req.body);
-//   const param = [req.body.id, req.body.password, req.body.name, 0, req.body.group_id];
-// //   bcrypt.hash(param[1], saltRounds, (error, hash) => {
-// //     param[1] = hash;
-// //     db.query(`INSERT INTO student ('id', 'password', 'name', 'avatar_id', 'group_id') VALUES (?, ?, ?, ?, ?)`, param, (err, row) => {
-// //       if(err) console.log(err);
-// //     });
-// //   });
-//     db.query(`INSERT INTO student (id, password, name, avatar_id, group_id) VALUES (?, ?, ?, ?, ?)`, param, (err, row) => {
-//         if(err) console.log(err);
-//     });
-//   res.end();
-// });
 
+//  *      responses:
+//  *          '200':
+//  *              description: OK
+//  *              content:
+//  *                  "application/json; charset=utf-8":
+//  *                      schema:
+//  *                          type: object
+//  *                          properties:
+//  *                              class_id:
+//  *                                  type: integer
+//  *                                  description: 반 아이디
+//  *          '400':
+//  *              description: school_code, name, auth_code, year 중 하나라도 없으면 에러
+//  *              content:
+//  *                  "application/json; charset=utf-8":
+//  *                      schema:
+//  *                          type: object
+//  *          '422':
+//  *              description: (school_code, year, name) 세트가 두 개 이상이면 에러 (같은 학교 같은 학년에 같은 이름의 반이 두 개 이상 있으면 안됨)
+//  *              content:
+//  *                  "application/json; charset=utf-8":
+//  *                      schema:
+//  *                          type: object
+//  */
+
+//  router.post(`/teacher`, async (req, res, next) => {
+//     try{
+//         const {id, name, password, class_id} = req.body;
+//         // id, name, password, class_id 중 하나라도 없으면 에러
+//         if(!id || !name || !password || !class_id){
+//             const error = new Error('id, name, password, class_id are required!');
+//             error.status = 400;
+//             throw error;
+//         }
+
+//         // password 암호화
+//         const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+//         // 이미 담임선생님이 등록되어있는 반인지 확인
+//         [rows, fields] = await pool.query('SELECT * FROM teacher WHERE class_id = ?', [class_id]);
+
+//         if(rows.length>0){
+//             const error = new Error('이미 등록된 담임선생님이 있는 반입니다!');
+//             error.status = 405;
+//             throw error;           
+//         }
+
+//         // 선생님 회원가입
+//         [rows, fields] = await pool.query(
+//             'INSERT INTO teacher(id, name, password, class_id) VALUES(?, ?, ?, ?)', 
+//             [id, name, hashedPassword, class_id]);
+
+//         res.set({ 'content-type': 'application/json; charset=utf-8' });
+//         res.send({
+//             "status": 'success',
+//             "code": 200,
+//             "data": null,
+//             "message": 'Successfully add new teacher'
+//         });
+//     }catch(error){
+//         next(error);
+//     }
+// });
 
 
 module.exports = router;

@@ -1,5 +1,5 @@
 var express = require('express');
-const db = require('../db/config');
+const pool = require('../db/config');
 const bcrypt = require('bcrypt');
 var router = express.Router();
 
@@ -64,44 +64,49 @@ const saltRounds = 10;
  *                          type: object
  */
 
-router.post(`/`, (req, res, next) => {
+router.post(`/`, async (req, res, next) => {
+    const {school_code, name, auth_code, year} = req.body;
+
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
-    if(!req.body.school_code || !req.body.name || !req.body.auth_code || !req.body.year){
+    if(!school_code || !name || !auth_code || !year){
         const error = new Error('school_code, name, auth_code, year are required!');
         error.status = 400;
         next(error);
         return;       
     }
 
-    // auth_code는 암호화하여 저장
-    bcrypt.hash(req.body.auth_code, saltRounds).then(function(hash) {
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        // 생성한 인증코드 암호화
+        const hashedAuthCode = await bcrypt.hash(auth_code, saltRounds);
 
-    // class 테이블에 새로운 반에 대한 행 추가
-        db.query('INSERT INTO class(school_code, name, auth_code, year) VALUES(?, ?, ?, ?)', [req.body.school_code, req.body.name, hash, req.body.year], (err, rows, fields) => {
-            if(err){
-                // (school_code, year, name) 쌍이 unique하지 않으면 에러
-                if(err.code === 'ER_DUP_ENTRY'){
-                    const error = new Error('같은 학교, 같은 학년에 이미 같은 이름의 반이 존재합니다!');
-                    error.status = 422;
-                    next(error);
-                    return;
-                }
-                next(err);
-                return;
-            }
-            
-            // 정상적으로 행 추가 후엔 새로 추가된 행의 id를 response로 보냄
-            res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": {
-                    'class_id': rows.insertId
-                },
-                "message": 'Successfully add new class'
-            });
-        })
-    });
+        // 반 생성
+        const [rows] = await connection.query(
+            'INSERT INTO class(school_code, name, auth_code, year) VALUES(?, ?, ?, ?)', 
+            [req.body.school_code, req.body.name, hashedAuthCode, req.body.year]);
+
+        // 정상적으로 행 추가 후엔 새로 추가된 행의 id를 response로 보냄
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'class_id': rows.insertId
+            },
+            "message": 'Successfully add new class'
+        });        
+    }catch(error){
+        // (school_code, year, name) 쌍이 unique하지 않으면 에러
+        if(error.code === 'ER_DUP_ENTRY'){
+            const error = new Error('같은 학교, 같은 학년에 이미 같은 이름의 반이 존재합니다!');
+            error.status = 422;
+            next(error);
+        }else{
+            next(error);
+        }
+    }finally{
+        connection.release();
+    }
 });
 
   
@@ -110,7 +115,7 @@ router.post(`/`, (req, res, next) => {
 
 /**
  * @swagger
- *  /api/class:
+ *  /api/class?school_code=?&year=?:
  *    get:
  *      tags: [Class]
  *      summary: 특정 학교, 학년에 대한 반 리스트 API
@@ -156,21 +161,25 @@ router.post(`/`, (req, res, next) => {
  *                          type: object
  */
 
- router.get(`/`, (req, res, next) => {
-    // school_code, name, auth_code, year 중 하나라도 없으면 에러
-    if(!req.query.school_code.length || !req.query.year.length){
+ router.get(`/`, async (req, res, next) => {
+    const {school_code, year} = req.query;
+
+    // school_code, year 중 하나라도 없으면 에러
+    if(!school_code || !year){
         const error = new Error('school_code, year are required!');
         error.status = 400;
         next(error);
         return;       
     }
 
+    const connection = await pool.getConnection(async conn => conn);
+    try{   
+        // 특정 학교의 특정 학년 안에 반 정보 리스트 불러오기
+        const [rows] = await connection.query(
+            `SELECT id, name  FROM class WHERE school_code = ? AND year = ?`,
+            [req.query.school_code, req.query.year]
+        );
 
-    db.query(`SELECT id, name  FROM class WHERE school_code = ? AND year = ?`, [req.query.school_code, req.query.year], (err, rows, fields) => {
-        if(err){
-            next(err);
-            return;
-        }    
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             "status": 'success',
@@ -179,8 +188,12 @@ router.post(`/`, (req, res, next) => {
                 'class_list': rows
             },
             "message": null
-        });   
-    })
+        });  
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
 });
 
 
@@ -226,28 +239,43 @@ router.post(`/`, (req, res, next) => {
  *                          type: object
  */
 
- router.post(`/authorize`, (req, res, next) => {
-    db.query('SELECT auth_code FROM class WHERE id = ?', [req.body.id], (err, rows, fields) => {
-        if(err) next(err);
+ router.post(`/authorize`, async (req, res, next) => {
+    const {id, auth_code} = req.body;
+    if(!id || !auth_code){
+        const error = new Error('school_code, year are required!');
+        error.status = 400;
+        next(error);
+        return;            
+    }
+
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        const [rows] = await connection.query(
+            'SELECT auth_code FROM class WHERE id = ?',
+            [id]
+        );
+
         if(!rows.length){
             const error = new Error("해당 반이 존재하지 않습니다!");
             error.status = 404;
-            next(error);
+            throw error;           
         }
-        bcrypt.compare(req.body.auth_code, rows[0]['auth_code']).then(function(result) {
-            res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": {
-                    'result': result
-                },
-                "message": null
-            });  
-        }).catch(error => {
-            next(error);
-        });
-    })
 
+        const isAuthorized = await bcrypt.compare(auth_code, rows[0]['auth_code']);
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'result': isAuthorized
+            },
+            "message": null
+        });          
+
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
 });
 module.exports = router;

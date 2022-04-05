@@ -1,26 +1,6 @@
-const mysql = require('mysql2');
-// const nopt = require('nopt');
+const mysql = require('mysql2/promise');
 
-// var longOpts = {
-//     "host": String,
-//     "userId": String,
-//     "userPassword": String,
-//     "database": String
-// };
-
-// var shortOpts = {
-//     "h": ["--host"],
-//     "i": ["--userId"],
-//     "p": ["--userPassword"],
-//     "d": ["--database"]
-// };
-
-// const parsed = nopt(longOpts, shortOpts, process.argv, 1);
-
-// console.log(parsed);
-
-
-const db = mysql.createConnection({
+const pool = mysql.createPool({
     host: process.argv[2],
     user: process.argv[3],
     password: process.argv[4],
@@ -31,7 +11,4 @@ const db = mysql.createConnection({
     }
 });
 
-db.connect();
-
-
-module.exports = db;
+module.exports = pool;

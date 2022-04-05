@@ -1,5 +1,5 @@
 var express = require('express');
-const db = require('../db/config');
+const pool = require('../db/config');
 var router = express.Router();
 
 /**
@@ -36,12 +36,11 @@ var router = express.Router();
  *                          type: object
  *                      
  */
-router.get('/cities',  (req, res, next) => {
-    db.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`, (err, rows, fields) => {
-        if(err) {
-            next(err);
-            return;
-        }
+router.get('/cities',  async (req, res, next) => {
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        const [rows] = await connection.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`);
+
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             'status': 'success',
@@ -51,7 +50,11 @@ router.get('/cities',  (req, res, next) => {
             },
             'message': null
         })
-    });
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
 });
 
 
@@ -92,19 +95,22 @@ router.get('/cities',  (req, res, next) => {
  *                          type: object
  */
 
-router.get(`/location`, (req, res, next) => {
-    db.query(
-        'SELECT school_code, school_name FROM school WHERE school_location = ?', [req.query.school_location], (err, rows, fields) => {
-        if(err){
-            next(err);
-            return;
-        }
+router.get(`/location`, async (req, res, next) => {
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        // 시/도에 있는 학교 리스트 불러오기
+        const {school_location} = req.query;
+        const [rows] = await pool.query(
+            'SELECT school_code, school_name FROM school WHERE school_location = ?', 
+            [school_location]);
+
+        // 쿼리로 준 이름의 시/도가 없는 경우 에러 처리
         if(!rows.length){
-            const error = new Error('No school in the city!');
-            error.status = 404;
-            next(error);
-            return;
+            const err = new Error(`No school in the city or there is no city named ${school_location}`);
+            err.status = 404;
+            throw err;
         }
+
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             'status': 'success',
@@ -114,7 +120,11 @@ router.get(`/location`, (req, res, next) => {
             },
             'message': null
         });
-    })
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
 });
   
 
