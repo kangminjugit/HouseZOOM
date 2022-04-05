@@ -241,7 +241,7 @@ router.post(`/`, async (req, res, next) => {
 
  router.post(`/authorize`, async (req, res, next) => {
     const {id, auth_code} = req.body;
-    if(!id || !auth_code){
+    if(id==null || !auth_code){
         const error = new Error('school_code, year are required!');
         error.status = 400;
         next(error);

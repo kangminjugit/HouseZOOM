@@ -96,10 +96,17 @@ router.get('/cities',  async (req, res, next) => {
  */
 
 router.get(`/location`, async (req, res, next) => {
+    const {school_location} = req.query;
+    if(!school_location){
+        const error = new Error('school_code, year are required!');
+        error.status = 400;
+        next(error);
+        return;   
+    }
+
     const connection = await pool.getConnection(async conn => conn);
     try{
         // 시/도에 있는 학교 리스트 불러오기
-        const {school_location} = req.query;
         const [rows] = await pool.query(
             'SELECT school_code, school_name FROM school WHERE school_location = ?', 
             [school_location]);
