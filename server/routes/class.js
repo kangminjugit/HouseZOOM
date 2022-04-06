@@ -68,7 +68,7 @@ router.post(`/`, async (req, res, next) => {
     const {school_code, name, auth_code, year} = req.body;
 
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
-    if(!school_code || !name || !auth_code || !year){
+    if(school_code==='' || name==='' || auth_code==='' || year === null){
         const error = new Error('school_code, name, auth_code, year are required!');
         error.status = 400;
         next(error);
@@ -165,7 +165,7 @@ router.post(`/`, async (req, res, next) => {
     const {school_code, year} = req.query;
 
     // school_code, year 중 하나라도 없으면 에러
-    if(!school_code || !year){
+    if(school_code==='' || year==null){
         const error = new Error('school_code, year are required!');
         error.status = 400;
         next(error);
@@ -241,7 +241,7 @@ router.post(`/`, async (req, res, next) => {
 
  router.post(`/authorize`, async (req, res, next) => {
     const {id, auth_code} = req.body;
-    if(id==null || !auth_code){
+    if(id==null || auth_code ===''){
         const error = new Error('school_code, year are required!');
         error.status = 400;
         next(error);
@@ -256,7 +256,7 @@ router.post(`/`, async (req, res, next) => {
         );
 
         if(!rows.length){
-            const error = new Error("해당 반이 존재하지 않습니다!");
+            const error = new Error("존재하지 않는 반입니다!");
             error.status = 404;
             throw error;           
         }

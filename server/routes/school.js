@@ -97,7 +97,7 @@ router.get('/cities',  async (req, res, next) => {
 
 router.get(`/location`, async (req, res, next) => {
     const {school_location} = req.query;
-    if(!school_location){
+    if(school_location === ''){
         const error = new Error('school_code, year are required!');
         error.status = 400;
         next(error);
