@@ -115,7 +115,7 @@ router.post(`/`, async (req, res, next) => {
 
 /**
  * @swagger
- *  /api/class?school_code=?&year=?:
+ *  /api/class?school_code=#&year=#:
  *    get:
  *      tags: [Class]
  *      summary: 특정 학교, 학년에 대한 반 리스트 API

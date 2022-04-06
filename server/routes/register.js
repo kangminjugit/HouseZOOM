@@ -71,7 +71,8 @@ const saltRounds = 10;
     if(id === '' || name === '' || password === '' || class_id == null){
         const error = new Error('id, name, password, class_id are required!');
         error.status = 400;
-        throw error;
+        next(error);
+        return;
     }
 
     const connection = await pool.getConnection(async conn => conn);
@@ -183,7 +184,8 @@ const saltRounds = 10;
     if(id === '' || name === '' || password === '' || class_id == null || auth_code === ''){
         const error = new Error('id, name, password, class_id, auth_code are required!');
         error.status = 400;
-        throw error;
+        next(error);
+        return;
     }
 
     const connection = await pool.getConnection(async conn => conn);
