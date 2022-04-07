@@ -12,6 +12,7 @@ var registerRouter = require('./routes/register');
 var schoolRouter = require('./routes/school');
 var classRouter = require('./routes/class');
 var checkRouter = require('./routes/check_id');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.use('/api/register', registerRouter);
 app.use('/api/school', schoolRouter);
 app.use('/api/class', classRouter);
 app.use('/api/check', checkRouter);
+app.use('/api/login', loginRouter);
 
 // swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
