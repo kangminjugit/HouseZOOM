@@ -1,6 +1,7 @@
 var express = require('express');
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
+const authMiddleware = require('../authmiddleware');
 var router = express.Router();
 
 const saltRounds = 10;
@@ -64,7 +65,7 @@ const saltRounds = 10;
  *                          type: object
  */
 
-router.post(`/`, async (req, res, next) => {
+router.post(`/`, authMiddleware, async (req, res, next) => {
     const {school_code, name, auth_code, year} = req.body;
 
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
@@ -108,8 +109,6 @@ router.post(`/`, async (req, res, next) => {
         connection.release();
     }
 });
-
-  
 
 
 

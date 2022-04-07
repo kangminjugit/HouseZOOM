@@ -27,7 +27,7 @@ const saltRounds = 10;
  *           schema:
  *              type: object
  *              required:
- *                  - id, name, password, class_id
+ *                  - id, name, password
  *              properties:
  *                  id:
  *                      type: string
@@ -35,8 +35,6 @@ const saltRounds = 10;
  *                      type: string
  *                  password:
  *                      type: string
- *                  class_id:
- *                      type: integer
 
  *      responses:
  *          '200':
@@ -66,10 +64,10 @@ const saltRounds = 10;
  */
 
  router.post(`/teacher`, async (req, res, next) => {
-    const {id, name, password, class_id} = req.body;
-    // id, name, password, class_id 중 하나라도 없으면 에러
-    if(id === '' || name === '' || password === '' || class_id == null){
-        const error = new Error('id, name, password, class_id are required!');
+    const {id, name, password} = req.body;
+    // id, name, password 중 하나라도 없으면 에러
+    if(id === '' || name === '' || password === '' ){
+        const error = new Error('id, name, password are required!');
         error.status = 400;
         next(error);
         return;
@@ -81,19 +79,10 @@ const saltRounds = 10;
         // password 암호화
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // 이미 담임선생님이 등록되어있는 반인지 확인
-        [rows, fields] = await connection.query('SELECT * FROM teacher WHERE class_id = ?', [class_id]);
-
-        if(rows.length>0){
-            const error = new Error('이미 등록된 담임선생님이 있는 반입니다!');
-            error.status = 405;
-            throw error;           
-        }
-
         // 선생님 회원가입
         [rows, fields] = await pool.query(
-            'INSERT INTO teacher(id, name, password, class_id) VALUES(?, ?, ?, ?)', 
-            [id, name, hashedPassword, class_id]);
+            'INSERT INTO teacher(id, name, password) VALUES(?, ?, ?)', 
+            [id, name, hashedPassword]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
