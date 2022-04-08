@@ -19,7 +19,7 @@ const saltRounds = 10;
  *  /api/class:
  *    post:
  *      tags: [Class]
- *      summary: 반 생성 API
+ *      summary: 반 생성 API(선생님 계정으로 로그인 필요!)
  *      consumes:
  *          - application/json; charset=utf-8
  *      parameters:
@@ -65,7 +65,7 @@ const saltRounds = 10;
  *                          type: object
  */
 
-router.post(`/`, teacherAuthMiddleware, async (req, res, next) => {
+ router.post(`/`, teacherAuthMiddleware, async (req, res, next) => {
     const {school_code, name, auth_code, year} = req.body;
 
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
@@ -92,17 +92,23 @@ router.post(`/`, teacherAuthMiddleware, async (req, res, next) => {
         }
 
         // 반 생성
-        const [rows, fields] = await connection.query(
+        const [newClass] = await connection.query(
             'INSERT INTO class(school_code, name, auth_code, year) VALUES(?, ?, ?, ?)', 
             [school_code, name, hashedAuthCode, year]);
 
-        // 정상적으로 행 추가 후엔 새로 추가된 행의 id를 response로 보냄
+        // 선생님과 반 관계 생성
+        const [newClassTeacher] = await connection.query(
+            'INSERT INTO class_teacher(class_id, teacher_id) VALUES(?, ?)',
+            [newClass.insertId, req.id]
+        );
+
+        // 정상적으로 행 추가 후엔 새로 추가된 반의 id를 response로 보냄
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             "status": 'success',
             "code": 200,
             "data": {
-                'class_id': rows.insertId
+                'class_id': newClass.insertId
             },
             "message": 'Successfully add new class'
         });        
