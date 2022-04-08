@@ -2,8 +2,7 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const config = require('../config/secretkey');
+const jwtUtil = require('../utils/jwt-util');
 
 const saltRounds = 10;
 
@@ -70,7 +69,7 @@ router.post('/teacher', async (req, res, next) => {
 
     const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('SELECT * FROM teacher WHERE id = ?', [id]);
+        var [rows, fields] = await connection.query('SELECT * FROM teacher WHERE id = ?', [id]);
         if(rows.length === 0){
             const error = new Error('등록되지 않은 아이디입니다!');
             error.status = 401;
@@ -84,30 +83,24 @@ router.post('/teacher', async (req, res, next) => {
             throw error;              
         }
 
-        jwt.sign({
-            id: id,
+        const accessToken = jwtUtil.sign({
+            id:id,
             name: rows[0].name
-        },
-        config.secret, {
-            expiresIn: '1d'
-        },
-        (err, token) => {
-            if(err){
-                const error = new Error('token sign fail');
-                error.status = 401;
-                throw error;
-            }else{
-                res.set({ 'content-type': 'application/json; charset=utf-8' });
-                res.send({
-                    "status": 'success',
-                    "code": 200,
-                    "data": {
-                        "token": token
-                    },
-                    "message": 'login success'
-                });
-            }
-        })
+        });
+        const refreshToken = jwtUtil.refresh();
+
+        [rows, fields] = await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                "accessToken": accessToken,
+                "refreshToken": refreshToken
+            },
+            "message": 'login success'
+        });
 
     }catch(error){
         next(error);
@@ -171,7 +164,7 @@ router.post('/teacher', async (req, res, next) => {
 
     const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('SELECT * FROM student WHERE id = ?', [id]);
+        var [rows, fields] = await connection.query('SELECT * FROM student WHERE id = ?', [id]);
         if(rows.length === 0){
             const error = new Error('등록되지 않은 아이디입니다!');
             error.status = 401;
@@ -184,31 +177,24 @@ router.post('/teacher', async (req, res, next) => {
             error.status = 401;
             throw error;              
         }
-
-        jwt.sign({
-            id: id,
+        const accessToken = jwtUtil.sign({
+            id:id,
             name: rows[0].name
-        },
-        config.secret, {
-            expiresIn: '1d'
-        },
-        (err, token) => {
-            if(err){
-                const error = new Error('token sign fail');
-                error.status = 401;
-                throw error;
-            }else{
-                res.set({ 'content-type': 'application/json; charset=utf-8' });
-                res.send({
-                    "status": 'success',
-                    "code": 200,
-                    "data": {
-                        "token": token
-                    },
-                    "message": 'login success'
-                });
-            }
-        })
+        });
+        const refreshToken = jwtUtil.refresh();
+
+        [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                "accessToken": accessToken,
+                "refreshToken": refreshToken
+            },
+            "message": 'login success'
+        });
 
     }catch(error){
         next(error);

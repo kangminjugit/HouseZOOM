@@ -1,7 +1,7 @@
 var express = require('express');
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
-const authMiddleware = require('../authmiddleware');
+const {teacherAuthMiddleware, authmiddleware} = require('../middlewares/authmiddleware');
 var router = express.Router();
 
 const saltRounds = 10;
@@ -65,7 +65,7 @@ const saltRounds = 10;
  *                          type: object
  */
 
-router.post(`/`, authMiddleware, async (req, res, next) => {
+router.post(`/`, teacherAuthMiddleware, async (req, res, next) => {
     const {school_code, name, auth_code, year} = req.body;
 
     // school_code, name, auth_code, year 중 하나라도 없으면 에러
@@ -81,10 +81,20 @@ router.post(`/`, authMiddleware, async (req, res, next) => {
         // 생성한 인증코드 암호화
         const hashedAuthCode = await bcrypt.hash(auth_code, saltRounds);
 
+        const [school] = await connection.query(
+            'SELECT * FROM school WHERE school_code = ?', 
+            [school_code, name, year]);
+
+        if(school.length === 0){
+            const error = new Error('해당하는 학교가 존재하지 않습니다!');
+            error.status = 404;
+            throw error;
+        }
+
         // 반 생성
-        const [rows] = await connection.query(
+        const [rows, fields] = await connection.query(
             'INSERT INTO class(school_code, name, auth_code, year) VALUES(?, ?, ?, ?)', 
-            [req.body.school_code, req.body.name, hashedAuthCode, req.body.year]);
+            [school_code, name, hashedAuthCode, year]);
 
         // 정상적으로 행 추가 후엔 새로 추가된 행의 id를 response로 보냄
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -160,7 +170,7 @@ router.post(`/`, authMiddleware, async (req, res, next) => {
  *                          type: object
  */
 
- router.get(`/`, async (req, res, next) => {
+ router.get(`/`,async (req, res, next) => {
     const {school_code, year} = req.query;
 
     // school_code, year 중 하나라도 없으면 에러
