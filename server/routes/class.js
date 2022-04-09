@@ -98,42 +98,34 @@ const saltRounds = 10;
         }
 
         // 반 생성 & 선생님-반 연결 관계 생성
-        connection.beginTransaction((error) => {
-            connection.query(
+        try{
+            await connection.beginTransaction();
+            const [newClass] = await connection.query(
                 'INSERT INTO class(school_code, name, auth_code, year) VALUES(?, ?, ?, ?)', 
-                [school_code, name, hashedAuthCode, year],
-                (error, rows) => {
-                    if(error)
-                        throw error;
-                    else{
-                        connection.query(
-                            'INSERT INTO class_teacher(class_id, teacher_id) VALUES(?, ?)',
-                            [newClass.insertId, req.id],
-                            (error, rows) => {
-                                if(error){
-                                    connection.rollback();
-                                    throw error;
-                                }
-                                else{
-                                    connection.commit();
-                                    // 정상적으로 행 추가 후엔 새로 추가된 반의 id를 response로 보냄
-                                    res.set({ 'content-type': 'application/json; charset=utf-8' });
-                                    res.send({
-                                        "status": 'success',
-                                        "code": 200,
-                                        "data": {
-                                            'class_id': newClass.insertId
-                                        },
-                                        "message": 'Successfully add new class'
-                                    }); 
-                                }
-                            }
-                        );
-                    }
-                });
+                [school_code, name, hashedAuthCode, year]  
+            );
 
+            await connection.query(
+                'INSERT INTO class_teacher(class_id, teacher_id) VALUES(?, ?)',
+                [newClass.insertId, req.id]
+            );
 
-        })
+            await connection.commit();
+
+            res.set({ 'content-type': 'application/json; charset=utf-8' });
+            res.send({
+                "status": 'success',
+                "code": 200,
+                "data": {
+                    'class_id': newClass.insertId
+                },
+                "message": 'Successfully add new class'
+            }); 
+        
+        }catch(error){
+            await connection.rollback();
+            throw error;
+        }
        
     }catch(error){
         // (school_code, year, name) 쌍이 unique하지 않으면 에러
@@ -331,7 +323,7 @@ const saltRounds = 10;
                 "message": 'Successfully delete class'
             });  
         }catch(error){
-            connection.rollback();
+            await connection.rollback();
             throw error;
         }
 
