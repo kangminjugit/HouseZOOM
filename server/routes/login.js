@@ -92,7 +92,10 @@ router.post('/teacher', async (req, res, next) => {
         [rows, fields] = await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
+        res
+        .cookie("accessToken", accessToken, {
+            httpOnly: true,
+        }).send({
             "status": 'success',
             "code": 200,
             "data": {
@@ -186,7 +189,11 @@ router.post('/teacher', async (req, res, next) => {
         [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
+        res
+        .cookie("accessToken", accessToken, {
+            httpOnly: true,
+        })
+        .send({
             "status": 'success',
             "code": 200,
             "data": {

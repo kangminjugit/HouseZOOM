@@ -205,7 +205,7 @@ const saltRounds = 10;
     try{   
         // 특정 학교의 특정 학년 안에 반 정보 리스트 불러오기
         const [rows] = await connection.query(
-            `SELECT id, name  FROM class WHERE school_code = ? AND year = ?`,
+            `SELECT id, name FROM class WHERE school_code = ? AND year = ?`,
             [req.query.school_code, req.query.year]
         );
 
