@@ -14,7 +14,7 @@ var classRouter = require('./routes/class');
 var checkRouter = require('./routes/check_id');
 var loginRouter = require('./routes/login');
 // var avatarRouter = require('./routes/avatar');
-var imageRouter = require('./routes/image');
+// var imageRouter = require('./routes/image');
 var timeTableRouter = require('./routes/time_table');
 
 var app = express();
@@ -41,7 +41,7 @@ app.use('/api/class', classRouter);
 app.use('/api/check', checkRouter);
 app.use('/api/login', loginRouter);
 // app.use('/api/avatar', avatarRouter);
-app.use('/api/image', imageRouter);
+// app.use('/api/image', imageRouter);
 app.use('/api/time-table',timeTableRouter);
 
 // swagger
