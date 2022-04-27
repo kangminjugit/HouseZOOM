@@ -174,6 +174,8 @@ router.post('/teacher', async (req, res, next) => {
             throw error;  
         }
 
+        const {class_id, avatar_id} = rows[0];
+
         const isAuthorized = await bcrypt.compare(password, rows[0]['password']);
         if(!isAuthorized){
             const error = new Error('잘못된 비밀번호입니다!');
@@ -198,7 +200,9 @@ router.post('/teacher', async (req, res, next) => {
             "code": 200,
             "data": {
                 "accessToken": accessToken,
-                "refreshToken": refreshToken
+                "refreshToken": refreshToken,
+                "classId": class_id,
+                "avatarId": avatar_id
             },
             "message": 'login success'
         });
