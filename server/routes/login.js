@@ -179,7 +179,7 @@ router.post('/teacher', async (req, res, next) => {
             throw error;  
         }
 
-        const {class_id, avatar_id} = rows[0];
+        const {class_id} = rows[0];
 
         const isAuthorized = await bcrypt.compare(password, rows[0]['password']);
         if(!isAuthorized){
@@ -206,8 +206,7 @@ router.post('/teacher', async (req, res, next) => {
             "data": {
                 "accessToken": accessToken,
                 "refreshToken": refreshToken,
-                "classId": class_id,
-                "avatarId": avatar_id
+                "classId": class_id
             },
             "message": 'login success'
         });

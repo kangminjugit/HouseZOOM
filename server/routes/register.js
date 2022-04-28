@@ -198,26 +198,42 @@ const saltRounds = 10;
         // password 암호화
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // 학생 회원가입
-        [rows, fields] = await connection.query(
-            'INSERT INTO student(id, name, password, class_id) VALUES(?, ?, ?, ?)', 
-            [id, name, hashedPassword, class_id]);
+        try{
+            await connection.beginTransaction();
 
-        res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": null,
-            "message": 'Successfully add new student'
-        });
-    }catch(error){
-        if(error.code === 'ER_DUP_ENTRY'){
-            const error = new Error('이미 존재하는 아이디입니다!');
-            error.status = 422;
-            next(error);
-        }else{
-            next(error);
+            [rows, fields] = await connection.query(
+                'INSERT INTO avatar(cur_hair_id, cur_top_id, cur_bottom_id) values(NULL, NULL, NULL)'
+            );
+
+            // 학생 회원가입
+            [rows, fields] = await connection.query(
+                'INSERT INTO student(id, name, password, class_id,point, isAccepted) VALUES(?, ?, ?, ?, ?, ?)', 
+                [id, name, hashedPassword, class_id,0, 'WAIT']);
+
+
+            await connection.commit();
+            res.set({ 'content-type': 'application/json; charset=utf-8' });
+            res.send({
+                "status": 'success',
+                "code": 200,
+                "data": null,
+                "message": 'Successfully add new student'
+            });
+        }catch(err){
+            await connection.rollback();
+            throw(err);
         }
+
+
+    }catch(error){
+        next(error);
+        // if(error.code === 'ER_DUP_ENTRY'){
+        //     const error = new Error('이미 존재하는 아이디입니다!');
+        //     error.status = 422;
+        //     next(error);
+        // }else{
+        //     next(error);
+        // }
     }finally{
         connection.release();
     }
