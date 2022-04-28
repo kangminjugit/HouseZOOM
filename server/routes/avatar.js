@@ -69,65 +69,6 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 });
 
 
-/**
- * @swagger
- *  /api/avatar/all-item?type=#:
- *    get:
- *      tags: [Avatar]
- *      summary: 해당 type의 전체아이템 조회 api
- *      produces:
- *      - "application/json; charset=utf-8"
- *      parameters:
- *          - in: query
- *            name: type
- *            schema:
- *              type: string
- *            required: true
- *            description: 아이템 타입(top, bottom, hair, *) -- *는 전체 아이템 의미
- *      responses:
- *          '200':
- *              description: OK
- *              content:
- *                  "application/json; charset=utf-8":
- *                      schema:
- *                          type: object
- */
-
- router.get(`/all-item`, async (req, res, next) => {
-    const {type} = req.query;
-
-    if(type === '' || type === undefined){
-        const error = new Error('type is required!');
-        error.status = 400;
-        next(error);
-        return;
-    }   
-
-    const connection = await pool.getConnection(async conn => conn);
-    try{
-        if(type === '*'){
-            [rows, fields] = await connection.query('select * from item');
-        }else{
-            [rows, fields] = await connection.query('select * from item where type = ?', [type]);
-        }
-        
-        res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "items": rows
-            },
-            "message": null
-        });
-    }catch(error){
-        next(error);
-    }finally{
-        connection.release();
-    }
-});
-
-
 
 /**
  * @swagger
@@ -210,6 +151,12 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  *                  "application/json; charset=utf-8":
  *                      schema:
  *                          type: object
+ *          '403':
+ *              description: 사용자가 갖고있지 않은 아이템 
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
  */
 
  router.post(`/put-on`,studentAuthMiddleware, async (req, res, next) => {
@@ -267,6 +214,12 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  *      responses:
  *          '200':
  *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ *          '403':
+ *              description: 사용자가 갖고있지 않은 아이템 
  *              content:
  *                  "application/json; charset=utf-8":
  *                      schema:

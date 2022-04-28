@@ -17,6 +17,8 @@ var avatarRouter = require('./routes/avatar');
 // var imageRouter = require('./routes/image');
 var timeTableRouter = require('./routes/time_table');
 var applyRouter = require('./routes/accept');
+var itemRouter = require('./routes/item');
+var shoppingBasketRouter = require('./routes/shopping_basket');
 
 var app = express();
 
@@ -45,6 +47,8 @@ app.use('/api/avatar', avatarRouter);
 // app.use('/api/image', imageRouter);
 app.use('/api/time-table',timeTableRouter);
 app.use('/api/apply', applyRouter);
+app.use('/api/item', itemRouter);
+app.use('/api/shopping-basket',shoppingBasketRouter);
 
 // swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
