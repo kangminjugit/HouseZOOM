@@ -201,14 +201,10 @@ const saltRounds = 10;
         try{
             await connection.beginTransaction();
 
-            [rows, fields] = await connection.query(
-                'INSERT INTO avatar(cur_hair_id, cur_top_id, cur_bottom_id) values(NULL, NULL, NULL)'
-            );
-
             // 학생 회원가입
             [rows, fields] = await connection.query(
-                'INSERT INTO student(id, name, password, class_id,point, isAccepted) VALUES(?, ?, ?, ?, ?, ?)', 
-                [id, name, hashedPassword, class_id,0, 'WAIT']);
+                'INSERT INTO student(id, name, password, class_id, isAccepted, point) VALUES(?, ?, ?, ?, ?, ?)', 
+                [id, name, hashedPassword, class_id, 'WAIT', 0]);
 
 
             await connection.commit();
@@ -226,14 +222,13 @@ const saltRounds = 10;
 
 
     }catch(error){
-        next(error);
-        // if(error.code === 'ER_DUP_ENTRY'){
-        //     const error = new Error('이미 존재하는 아이디입니다!');
-        //     error.status = 422;
-        //     next(error);
-        // }else{
-        //     next(error);
-        // }
+        if(error.code === 'ER_DUP_ENTRY'){
+            const error = new Error('이미 존재하는 아이디입니다!');
+            error.status = 422;
+            next(error);
+        }else{
+            next(error);
+        }
     }finally{
         connection.release();
     }
