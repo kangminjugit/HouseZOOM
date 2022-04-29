@@ -12,7 +12,7 @@ const { teacherAuthMiddleware } = require('../middlewares/authmiddleware');
 
 /**
  * @swagger
- *  /api/student:
+ *  /api/student?classId=#:
  *    get:
  *      tags: [Student]
  *      summary: 반 학생 리스트 조회 API (선생님 토큰 필요)
