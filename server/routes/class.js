@@ -225,6 +225,57 @@ const saltRounds = 10;
     }
 });
 
+
+/**
+ * @swagger
+ *  /api/class/my-class:
+ *    get:
+ *      tags: [Class]
+ *      summary: 해당 선생님 계정에 등록되어있는 반 리스트 조회 API (선생님 토큰 필요)
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              class_id:
+ *                                  type: integer
+ *                                  description: 반 아이디
+ */
+
+ router.get(`/my-class`,teacherAuthMiddleware,async (req, res, next) => {
+    const connection = await pool.getConnection(async conn => conn);
+    try{   
+        // 특정 선생님 계정에 등록되어있는 반 정보 조회
+        const [rows] = await connection.query(
+            `select class.id, class.name, class.year, class.school_code
+            from class_teacher, class
+            where teacher_id = ?
+            and class_teacher.class_id = class.id`,
+            [req.id]
+        );
+
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'classList': rows
+            },
+            "message": null
+        });  
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
+});
+
+
+
+
 /**
  * @swagger
  *  /api/class:
