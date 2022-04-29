@@ -19,6 +19,7 @@ var timeTableRouter = require('./routes/time_table');
 var applyRouter = require('./routes/accept');
 var itemRouter = require('./routes/item');
 var shoppingBasketRouter = require('./routes/shopping_basket');
+var studentRouter = require('./routes/student');
 
 var app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/time-table',timeTableRouter);
 app.use('/api/apply', applyRouter);
 app.use('/api/item', itemRouter);
 app.use('/api/shopping-basket',shoppingBasketRouter);
+app.use('/api/student', studentRouter);
 
 // swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
