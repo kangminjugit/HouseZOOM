@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const { swaggerUi, specs } = require('./modules/swagger');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -35,6 +36,7 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended:true
 }));
+app.use(cors());
 
 
 app.use('/', indexRouter);
