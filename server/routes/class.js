@@ -467,4 +467,85 @@ const saltRounds = 10;
         connection.release();
     }
 });
+
+
+
+/**
+ * @swagger
+ *  /api/class/info?classId=#:
+ *    get:
+ *      tags: [Class]
+ *      summary: 반 정보 api
+ *      produces:
+ *      - "application/json; charset=utf-8"
+ *      parameters:
+ *          - in: query
+ *            name: classId
+ *            schema:
+ *              type: integer
+ *            example: 23
+ *            required: true
+ *            description: 반 아이디
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ *                          properties:
+ *                              id:
+ *                                  type: integer
+ *                                  description: 반 아이디
+ *                              name:
+ *                                  type: string
+ *                                  description: 반 이름
+ *                              year:
+ *                                  type: integer
+ *                                  description: 학년
+ *                              school_name:
+ *                                  type: string
+ *                                  description: 학교 이름
+ *          '400':
+ *              description: classId 없으면 에러
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ */
+
+ router.get(`/info` ,async (req, res, next) => {
+    const {classId} = req.query;
+    if(classId === undefined || classId === null){
+        const error = new Error('classId is required!');
+        error.status = 400;
+        next(error);
+        return;   
+    }
+    const connection = await pool.getConnection(async conn => conn);
+    try{   
+        // 반 아이디에 대한 반 정보 조회
+        const [rows] = await connection.query(
+            `select id, name, year, school_name
+            from class, school
+            where class.school_code = school.school_code
+            and class.id = ?`,
+            [classId]
+        );
+
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'classInfo': rows[0]
+            },
+            "message": null
+        });  
+    }catch(error){
+        next(error);
+    }finally{
+        connection.release();
+    }
+});
 module.exports = router;
