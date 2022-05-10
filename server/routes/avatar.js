@@ -15,22 +15,25 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  *  /api/avatar/default:
  *    get:
  *      tags: [Avatar]
- *      summary: 기본 캐릭터 몸통 
+ *      summary: 아바타 기본 몸통
  *      responses:
  *          '200':
  *              description: OK
  *              content:
- *                  "image/png":
+ *                  "application/json; charset=utf-8":
  *                      schema:
  *                          type: object
- *                          properties:
- *                              image:
- *                                  type: image
- *                                  description: 기본 캐릭터
  */
  router.get(`/default`, async (req, res, next) => {
-    res.set({ 'content-type': 'image/png' });
-    res.sendFile('/Users/kangminju/Documents/GitHub/HouseZOOM/server/image/avatar_body.PNG');
+    res.set({ 'content-type': 'application/json; charset=utf-8' });
+    res.send({
+        "status": 'success',
+        "code": 200,
+        "data": {
+            "avatarBody":  'https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1652194871637_avatar_body.png'
+        },
+        "message": null
+    });
 });
 
 /**
