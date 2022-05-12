@@ -21,6 +21,7 @@ var applyRouter = require('./routes/accept');
 var itemRouter = require('./routes/item');
 var shoppingBasketRouter = require('./routes/shopping_basket');
 var studentRouter = require('./routes/student');
+var pointRouter = require('./routes/point');
 
 var app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/apply', applyRouter);
 app.use('/api/item', itemRouter);
 app.use('/api/shopping-basket',shoppingBasketRouter);
 app.use('/api/student', studentRouter);
+app.use('/api/point', pointRouter);
 
 // swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
