@@ -91,7 +91,9 @@ const saltRounds = 10;
             "data": null,
             "message": 'Successfully add new teacher'
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         if(error.code === 'ER_DUP_ENTRY'){
             const error = new Error('이미 존재하는 아이디입니다!');
             error.status = 422;
@@ -99,8 +101,6 @@ const saltRounds = 10;
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 
@@ -215,6 +215,7 @@ const saltRounds = 10;
                 "data": null,
                 "message": 'Successfully add new student'
             });
+            await connection.release();
         }catch(err){
             await connection.rollback();
             throw(err);
@@ -222,6 +223,7 @@ const saltRounds = 10;
 
 
     }catch(error){
+        await connection.release();
         if(error.code === 'ER_DUP_ENTRY'){
             const error = new Error('이미 존재하는 아이디입니다!');
             error.status = 422;
@@ -229,8 +231,6 @@ const saltRounds = 10;
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 

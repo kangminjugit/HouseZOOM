@@ -61,10 +61,10 @@ var router = express.Router();
             },
             "message": null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 

@@ -72,11 +72,12 @@ const { teacherAuthMiddleware } = require('../middlewares/authmiddleware');
                 'studentList': rows
             },
             'message': null
-        })
+        });
+
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
