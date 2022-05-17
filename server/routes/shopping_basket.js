@@ -89,14 +89,18 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.post(`/`,studentAuthMiddleware, async (req, res, next) => {
+    
     const items = req.body;
 
     const connection = await pool.getConnection(async conn => conn);
     try{
         var item_id_pairs = [];
-        items.forEach(item => {
+
+        // console.log(Array.isArray(items), Array.isArray(Array.from(items)))
+        Array.from(items).forEach(item => {
             item_id_pairs.push([item, req.id]);
         });
+
         await connection.query('insert into shopping_basket(item_id, student_id) values ?', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -110,6 +114,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         await connection.release();
     }catch(error){
         await connection.release();
+        console.log(error);
         if(error.code === 'ER_DUP_ENTRY'){
             let error = new Error('이미 장바구니에 존재하는 아이템이 있습니다.');
             error.status = 422;
