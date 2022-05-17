@@ -44,6 +44,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         });
         await connection.release();
     }catch(error){
+        console.log(error);
         await connection.release();
         next(error);
     }
@@ -101,7 +102,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             item_id_pairs.push([item, req.id]);
         });
 
-        await connection.query('insert into shopping_basket(item_id, student_id) values ?', [item_id_pairs]);
+        await connection.query('insert into shopping_basket(item_id, student_id) values ?;', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -217,8 +218,6 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.post(`/buy`,studentAuthMiddleware, async (req, res, next) => {
-    const items = req.body;
-
     const connection = await pool.getConnection(async conn => conn);
     try{
 
