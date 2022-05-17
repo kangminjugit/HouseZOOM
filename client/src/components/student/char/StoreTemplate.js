@@ -5,9 +5,10 @@ import Item from './Item';
 import Button from '../../common/Button';
 
 import axios from 'axios';
-import ToggleButton from '../../common/ToggleButton';
+//import ToggleButton from '../../common/ToggleButton';
 
 const null_arr = [''];
+
 // 화면 전체 style
 const StoreTemplateBlock = styled.div`
   position: flex;
