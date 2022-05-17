@@ -24,7 +24,7 @@ const HeaderLink = ({ type }) => {
           <Link to="/student/CharPage" className="link">
             나의 캐릭터
           </Link>
-          <Link to="/studentMyPage" className="link">
+          <Link to="/student/StorePage" className="link">
             캐릭터 상점
           </Link>
           <Link to="/studentMyPage" className="link">

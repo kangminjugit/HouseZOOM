@@ -20,11 +20,14 @@ const StyledButton = styled.button`
     `}
 `;
 
-const ToggleButton = ({ txt }) => {
+const ToggleButton = ({ txt, getToggle }) => {
   const [toggle, setToggle] = useState(false);
+
   const handleClick = (e) => {
     setToggle(!toggle);
+    getToggle(!toggle);
   };
+
   return toggle ? (
     <StyledButton fullWidth indigo onClick={handleClick}>
       {txt}

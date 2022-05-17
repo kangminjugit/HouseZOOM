@@ -42,7 +42,7 @@ const ItemList = ({ item_name, item_price, item_url }) => {
           <div>{item_price}</div>
         </ItemText>
       </div>
-      <Button>삭제하기</Button>
+      {/* <Button>삭제하기</Button> */}
     </ItemBox>
   );
 };
