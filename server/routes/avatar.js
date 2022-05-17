@@ -64,10 +64,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -124,10 +124,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -191,10 +191,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 착용하였습니다.'
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -258,10 +258,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 해제하였습니다.'
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 module.exports = router;

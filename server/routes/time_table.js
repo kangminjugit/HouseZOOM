@@ -59,10 +59,10 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -157,23 +157,23 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                     await connection.query('insert into time_table(day, period, subject, class_id, zoom_url) values(?, ?, ?, ?, ?)', [
                         elem.day, elem.period, elem.subject, classId, elem.zoom_url
                     ]);
+            });
+            res.set({ 'content-type': 'application/json; charset=utf-8' });
+            res.send({
+                "status": 'success',
+                "code": 200,
+                "data": {},
+                "message": '시간표가 성공적으로 저장되었습니다!'
+            });
 
-                res.set({ 'content-type': 'application/json; charset=utf-8' });
-                res.send({
-                    "status": 'success',
-                    "code": 200,
-                    "data": {},
-                    "message": '시간표가 성공적으로 저장되었습니다!'
-                });
-            })
+            await connection.release();
         }catch(err){
             await connection.rollback();
             throw error;
         }
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -238,11 +238,11 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": null,
             "message": '성공적으로 시간표를 삭제하였습니다.'
         });  
+        await connection.release();
 
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 

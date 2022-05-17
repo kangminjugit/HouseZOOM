@@ -99,11 +99,13 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                 "data": {},
                 "message": null
             });
+            await connection.release();
         }catch(error){
             await connection.rollback();
             throw error;
         }
     }catch(error){
+        await connection.release();
         // 존재하지 않는 학생 아이디 에러
         if(error.code === 'ER_NO_REFERENCED_ROW_2'){
             let error = new Error('존재하지 않는 학생 아이디입니다!');
@@ -112,8 +114,6 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 

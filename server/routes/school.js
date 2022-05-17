@@ -49,11 +49,11 @@ router.get('/cities',  async (req, res, next) => {
                 'city_list': rows.map(row => row['school_location'])
             },
             'message': null
-        })
+        });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -127,10 +127,10 @@ router.get(`/location`, async (req, res, next) => {
             },
             'message': null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
   

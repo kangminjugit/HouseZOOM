@@ -74,10 +74,10 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });  
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -141,10 +141,10 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": `${studentId}를 정상적으로 승인했습니다.`
         }); 
+        await connection.release();
     }catch(err){
+        await connection.release();
         next(err);
-    }finally{
-        connection.release();
     }
 });
 
@@ -210,10 +210,10 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": `${studentId}를 정상적으로 거절했습니다.`
         }); 
+        await connection.release();
     }catch(err){
+        await connection.release();
         next(err);
-    }finally{
-        connection.release();
     }
 });
 

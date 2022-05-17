@@ -42,10 +42,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -106,7 +106,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
         });
+
+        await connection.release();
     }catch(error){
+        await connection.release();
         if(error.code === 'ER_DUP_ENTRY'){
             let error = new Error('이미 장바구니에 존재하는 아이템이 있습니다.');
             error.status = 422;
@@ -118,8 +121,6 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 
@@ -174,7 +175,10 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템이 성공적으로 장바구니에서 삭제되었습니다.'
         });
+
+        await connection.release();
     }catch(error){
+        await connection.release();
         if(error.code === 'ER_NO_REFERENCED_ROW_2'){
             let error = new Error('전체 아이템 리스트에 존재하지 않는 아이템이 있습니다.');
             error.status = 400;
@@ -182,8 +186,6 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 
@@ -255,14 +257,15 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
                 "message": '장바구니에 있는 아이템을 성공적으로 구매하였습니다.'
             });
 
+            await connection.release();
+
         }catch(err){
             await connection.rollback();
             throw err;
         }
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 

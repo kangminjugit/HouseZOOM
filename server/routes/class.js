@@ -121,6 +121,7 @@ const saltRounds = 10;
                 },
                 "message": 'Successfully add new class'
             }); 
+            await connection.release();
         
         }catch(error){
             await connection.rollback();
@@ -128,6 +129,7 @@ const saltRounds = 10;
         }
        
     }catch(error){
+        await connection.release();
         // (school_code, year, name) 쌍이 unique하지 않으면 에러
         if(error.code === 'ER_DUP_ENTRY'){
             let error = new Error('같은 학교, 같은 학년에 이미 같은 이름의 반이 존재합니다!');
@@ -136,8 +138,6 @@ const saltRounds = 10;
         }else{
             next(error);
         }
-    }finally{
-        connection.release();
     }
 });
 
@@ -218,10 +218,10 @@ const saltRounds = 10;
             },
             "message": null
         });  
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -266,10 +266,10 @@ const saltRounds = 10;
             },
             "message": null
         });  
+        await connection.release();
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -373,15 +373,16 @@ const saltRounds = 10;
                 "data": null,
                 "message": 'Successfully delete class'
             });  
+            await connection.release();
         }catch(error){
             await connection.rollback();
+
             throw error;
         }
 
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -459,12 +460,12 @@ const saltRounds = 10;
                 'result': isAuthorized
             },
             "message": null
-        });          
+        });    
+        await connection.release();      
 
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 
@@ -541,11 +542,11 @@ const saltRounds = 10;
                 'classInfo': rows[0]
             },
             "message": null
-        });  
+        }); 
+        await connection.release(); 
     }catch(error){
+        await connection.release();
         next(error);
-    }finally{
-        connection.release();
     }
 });
 module.exports = router;
