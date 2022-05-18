@@ -1,7 +1,7 @@
 var express = require('express');
 const pool = require('../db/config');
 var router = express.Router();
-const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
+const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
 /**
  * @swagger
@@ -9,6 +9,101 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
  *  name: Point
  *  description: 칭찬포인트 API
  */
+
+
+/**
+ * @swagger
+ *  /api/point:
+ *    get:
+ *      tags: [Point]
+ *      summary: 각 학생의 포인트 정보 조회 (학생 토큰 필요)
+ *      produces:
+ *      - "application/json; charset=utf-8"
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ */
+
+ router.get(`/`,studentAuthMiddleware, async (req, res, next) => {
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        const [rows, fields] = await connection.query('select id,name, point from student where id = ?', [req.id]);
+        
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'id': rows[0].id,
+                'name':rows[0].name,
+                'point':rows[0].point
+            },
+            "message": null
+        });
+        connection.release();
+    }catch(error){
+        connection.release();
+        next(error);
+    }
+});
+
+
+
+/**
+ * @swagger
+ *  /api/point/class?classId=#:
+ *    get:
+ *      tags: [Point]
+ *      summary: 반에 속하는 학생들의 포인트 정보 조회(선생님 토큰 필요)
+ *      produces:
+ *      - "application/json; charset=utf-8"
+ *      parameters:
+ *         - in: query
+ *           name: classId
+ *           type: integer
+ *           description: 반 아이디
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ */
+
+ router.get(`/class`,teacherAuthMiddleware, async (req, res, next) => {
+    const {classId} = req.query;
+    if(classId === null || classId === undefined){
+        const error = new Error('classId is required!');
+        error.status = 400;
+        next(error);
+        return;  
+    }
+
+    const connection = await pool.getConnection(async conn => conn);
+    try{
+        const [rows, fields] = await connection.query('select id, name, point from student where class_id = ?', [classId]);
+        
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                'studentPointArr': rows
+            },
+            "message": null
+        });
+        connection.release();
+    }catch(error){
+        connection.release();
+        next(error);
+    }
+});
+
 
 /**
  * @swagger

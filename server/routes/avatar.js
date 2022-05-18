@@ -64,9 +64,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
+        connection.release();
     }catch(error){
-        await connection.release();
+        connection.release();
         next(error);
     }
 });
@@ -110,9 +110,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
     const connection = await pool.getConnection(async conn => conn);
     try{
         if(type === '*'){
-            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image from my_item, item where my_item.item_id = item.id and my_item.student_id = ?', [req.id]);
+            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image, my_item.is_cur as isUsed from my_item, item where my_item.item_id = item.id and my_item.student_id = ?', [req.id]);
         }else{
-            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image from my_item, item where my_item.item_id = item.id and my_item.student_id = ? and item.type = ?', [req.id, type]);
+            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image, my_item.is_cur as isUsed from my_item, item where my_item.item_id = item.id and my_item.student_id = ? and item.type = ?', [req.id, type]);
         }
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -124,9 +124,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
+        connection.release();
     }catch(error){
-        await connection.release();
+        connection.release();
         next(error);
     }
 });
@@ -174,15 +174,14 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
     const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select * from my_item where item_id = ? and student_id = ?', [itemId,req.id]);
-        
-        if(rows.length === 0){
-            const error = new Error('사용자가 가지고있지 않은 아이템입니다!');
+        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [1,itemId,req.id]);
+
+        if(rows.affectedRows === 0){
+            const error = new Error('사용자가 가지고 있지 않은 아이템입니다!');
             error.status = 403;
             next(error);
-            return;    
+            return;          
         }
-        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [1,itemId,req.id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -191,9 +190,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 착용하였습니다.'
         });
-        await connection.release();
+        connection.release();
     }catch(error){
-        await connection.release();
+        connection.release();
         next(error);
     }
 });
@@ -241,15 +240,13 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
     const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select * from my_item where item_id = ? and student_id = ?', [itemId,req.id]);
-        
-        if(rows.length === 0){
-            const error = new Error('사용자가 가지고있지 않은 아이템입니다!');
+        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [0,itemId,req.id]);
+        if(rows.affectedRows === 0){
+            const error = new Error('사용자가 가지고 있지 않은 아이템입니다!');
             error.status = 403;
             next(error);
-            return;    
+            return;          
         }
-        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [0,itemId,req.id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -258,9 +255,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 해제하였습니다.'
         });
-        await connection.release();
+        connection.release();
     }catch(error){
-        await connection.release();
+        connection.release();
         next(error);
     }
 });
