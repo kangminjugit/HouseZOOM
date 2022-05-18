@@ -109,10 +109,8 @@ router.post('/teacher', async (req, res, next) => {
             },
             "message": 'login success'
         });
-        await connection.release();
 
     }catch(error){
-        await connection.release();
         next(error);
     }
 })

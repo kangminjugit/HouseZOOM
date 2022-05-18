@@ -44,12 +44,11 @@ var router = express.Router();
         return;
     }   
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
         if(type === '*'){
-            [rows, fields] = await connection.query('select * from item');
+            [rows, fields] = await pool.query('select * from item');
         }else{
-            [rows, fields] = await connection.query('select * from item where type = ?', [type]);
+            [rows, fields] = await pool.query('select * from item where type = ?', [type]);
         }
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -61,9 +60,7 @@ var router = express.Router();
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });

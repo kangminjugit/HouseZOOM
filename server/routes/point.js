@@ -84,9 +84,8 @@ const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/a
         return;  
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        const [rows, fields] = await connection.query('select id, name, point from student where class_id = ?', [classId]);
+        const [rows, fields] = await pool.query('select id, name, point from student where class_id = ?', [classId]);
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -97,9 +96,7 @@ const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/a
             },
             "message": null
         });
-        connection.release();
     }catch(error){
-        connection.release();
         next(error);
     }
 });

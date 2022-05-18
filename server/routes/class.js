@@ -87,16 +87,6 @@ const saltRounds = 10;
         // 생성한 인증코드 암호화
         const hashedAuthCode = await bcrypt.hash(auth_code, saltRounds);
 
-        const [school] = await connection.query(
-            'SELECT * FROM school WHERE school_code = ?', 
-            [school_code, name, year]);
-
-        if(school.length === 0){
-            let error = new Error('해당하는 학교가 존재하지 않습니다!');
-            error.status = 404;
-            throw error;
-        }
-
         // 반 생성 & 선생님-반 연결 관계 생성
         try{
             await connection.beginTransaction();
@@ -121,7 +111,7 @@ const saltRounds = 10;
                 },
                 "message": 'Successfully add new class'
             }); 
-            await connection.release();
+            connection.release();
         
         }catch(error){
             await connection.rollback();
@@ -134,6 +124,10 @@ const saltRounds = 10;
         if(error.code === 'ER_DUP_ENTRY'){
             let error = new Error('같은 학교, 같은 학년에 이미 같은 이름의 반이 존재합니다!');
             error.status = 422;
+            next(error);
+        }else if(error.code === 'ER_NO_REFERENCED_ROW_2'){
+            let error = new Error('해당하는 학교가 존재하지 않습니다!');
+            error.status = 404;
             next(error);
         }else{
             next(error);
@@ -201,10 +195,9 @@ const saltRounds = 10;
         return;       
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{   
         // 특정 학교의 특정 학년 안에 반 정보 리스트 불러오기
-        const [rows] = await connection.query(
+        const [rows] = await pool.query(
             `SELECT id, name FROM class WHERE school_code = ? AND year = ?`,
             [req.query.school_code, req.query.year]
         );
@@ -218,9 +211,7 @@ const saltRounds = 10;
             },
             "message": null
         });  
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -246,10 +237,9 @@ const saltRounds = 10;
  */
 
  router.get(`/my-class`,teacherAuthMiddleware,async (req, res, next) => {
-    const connection = await pool.getConnection(async conn => conn);
     try{   
         // 특정 선생님 계정에 등록되어있는 반 정보 조회
-        const [rows] = await connection.query(
+        const [rows] = await pool.query(
             `select class.id, class.name, class.year, class.school_code
             from class_teacher, class
             where teacher_id = ?
@@ -266,9 +256,7 @@ const saltRounds = 10;
             },
             "message": null
         });  
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });

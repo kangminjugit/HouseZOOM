@@ -57,10 +57,9 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         return;       
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{   
         // 해당 반에 대해 승인 대기 중인 학생 아이디, 이름 
-        const [rows] = await connection.query(
+        const [rows] = await pool.query(
             `SELECT id, name FROM student WHERE class_id = ? AND isAccepted = ?`,
             [classId, 'WAIT']
         );
@@ -74,9 +73,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });  
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -125,10 +122,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         next(error);
         return;       
     }
-
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        await connection.query(
+        await pool.query(
             'update student set isAccepted = ? where id = ?', [
                 'ACCEPT', studentId
             ]
@@ -141,9 +136,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": `${studentId}를 정상적으로 승인했습니다.`
         }); 
-        await connection.release();
     }catch(err){
-        await connection.release();
         next(err);
     }
 });
@@ -195,9 +188,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         return;       
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        await connection.query(
+        await pool.query(
             'update student set isAccepted = ? where id = ?', [
                 'DENY', studentId
             ]
@@ -210,9 +202,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": `${studentId}를 정상적으로 거절했습니다.`
         }); 
-        await connection.release();
     }catch(err){
-        await connection.release();
         next(err);
     }
 });

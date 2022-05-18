@@ -37,9 +37,8 @@ var router = express.Router();
  *                      
  */
 router.get('/cities',  async (req, res, next) => {
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        const [rows] = await connection.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`);
+        const [rows] = await pool.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -50,9 +49,7 @@ router.get('/cities',  async (req, res, next) => {
             },
             'message': null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -104,7 +101,6 @@ router.get(`/location`, async (req, res, next) => {
         return;   
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
         // 시/도에 있는 학교 리스트 불러오기
         const [rows] = await pool.query(
@@ -127,9 +123,7 @@ router.get(`/location`, async (req, res, next) => {
             },
             'message': null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
