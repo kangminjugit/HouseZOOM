@@ -39,7 +39,7 @@ const ItemList = ({ item_name, item_price, item_url }) => {
         <img className="img" alt="item" src={item_url} />
         <ItemText>
           <div>{item_name}</div>
-          <div>{item_price}</div>
+          <div>{item_price}콩</div>
         </ItemText>
       </div>
       {/* <Button>삭제하기</Button> */}

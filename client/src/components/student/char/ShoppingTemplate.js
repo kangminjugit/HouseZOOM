@@ -106,7 +106,7 @@ const ShoppingTemplate = () => {
         <ItemList
           key={index}
           item_name={item.name}
-          item_point={item.price}
+          item_price={item.price}
           item_url={item.image}
         ></ItemList>
       ))}
