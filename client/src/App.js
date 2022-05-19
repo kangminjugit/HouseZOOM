@@ -14,6 +14,7 @@ import ClassGenerationPage from './pages/teacher/ClassGenerationPage';
 import ManageStudentPage from './pages/teacher/ManageStudentPage';
 import StudentCharPage from './pages/student/StudentCharPage';
 import StudentStorePage from './pages/student/StudentStorePage';
+import StudentShoppingPage from './pages/student/StudentShoppingPage';
 
 const App = () => {
   return (
@@ -35,6 +36,7 @@ const App = () => {
       <Route component={ManageStudentPage} path="/teacher/ManageStudentPage" />
       <Route component={StudentCharPage} path="/student/CharPage" />
       <Route component={StudentStorePage} path="/student/StorePage" />
+      <Route component={StudentShoppingPage} path="/student/ShoppingPage" />
 
       {/* <Route path="/@:username">
         <Route index element={<StudentMyPage />} />

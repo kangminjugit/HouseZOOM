@@ -3,6 +3,7 @@ import styled from 'styled-components';
 //import { Link } from 'react-router-dom';
 import palette from '../../lib/styles/palette';
 import TimeTable from './TimeTable';
+import Character from '../student/char/Character';
 
 // 화면 전체 style
 const MyPageTemplateBlock = styled.div`
@@ -26,7 +27,7 @@ const LeftBox = styled.div`
 const FirstBox = styled.div`
   margin: 2rem;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
-  width: 300px;
+  width: 320px;
   height: 150px;
   background: ${palette.gray[0]};
   border-radius: 10px;
@@ -38,10 +39,11 @@ const FirstBox = styled.div`
 `;
 
 const SecondBoxStudent = styled.div`
+  position: relative;
   margin: 2rem;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
   padding: 2rem;
-  width: 300px;
+  width: 320px;
   height: 450px;
   background: ${palette.gray[0]};
   font-weight: bold;
@@ -60,7 +62,7 @@ const SecondBoxTeacher = styled.div`
   margin: 2rem;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
   padding: 2rem;
-  width: 300px;
+  width: 320px;
   height: 450px;
   //background: ${palette.gray[0]};
   font-weight: bold;
@@ -91,12 +93,8 @@ const MyPageTemplate = ({ type }) => {
         <FirstBox>수업 들어가기</FirstBox>
         {type === 'student' && (
           <SecondBoxStudent>
-            푸앙이
-            <img
-              className="img"
-              alt="character"
-              src="/puang_img/puang_gibon.png"
-            />
+            나의 캐릭터
+            <Character />
           </SecondBoxStudent>
         )}
         {type === 'teacher' && <SecondBoxTeacher />}
