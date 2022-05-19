@@ -94,6 +94,17 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             item_id_pairs.push([item, req.id]);
         });
 
+        if(item_id_pairs.length === 0){
+            res.set({ 'content-type': 'application/json; charset=utf-8' });
+            res.send({
+                "status": 'success',
+                "code": 200,
+                "data": {},
+                "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
+            });       
+            return;
+        }
+
         await connection.query('insert into shopping_basket(item_id, student_id) values ?;', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
