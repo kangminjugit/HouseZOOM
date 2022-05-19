@@ -52,6 +52,8 @@ const ItemBox = styled.div`
 const ShoppingTemplate = () => {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState();
+  const [price, setPrice] = useState(0);
+  const [point, setPoint] = useState(0);
 
   // 토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
@@ -62,6 +64,17 @@ const ShoppingTemplate = () => {
     },
   });
 
+  const countPrice = (arr) => {
+    console.log('count price function');
+    var p = 0;
+    for (let j = 0; j < arr.length; j++) {
+      p += arr[j].price;
+      //setPrice(price + arr[j].price);
+    }
+    //console.log(p);
+    setPrice(p);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -70,6 +83,17 @@ const ShoppingTemplate = () => {
         .then(function (response) {
           console.log(response.data.data.items);
           setItems(response.data.data.items);
+          countPrice(response.data.data.items);
+          console.log(price);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      accessClient
+        .get('/api/point')
+        .then(function (response) {
+          console.log(response);
+          setPoint(response.data.data.point);
         })
         .catch(function (error) {
           console.log(error);
@@ -110,13 +134,10 @@ const ShoppingTemplate = () => {
           item_url={item.image}
         ></ItemList>
       ))}
-      {/* <ItemList
-        item_name="헤어"
-        item_price="100콩"
-        item_url="/puang_img/puang_gibon.png"
-      /> */}
       <HeaderBox>
-        <div>총 가격</div>
+        <div>
+          총 가격 : {price}콩 / 현재 포인트 : {point}콩
+        </div>
         <Button indigo onClick={handleClick} to="/studentMyPage">
           구입하기
         </Button>

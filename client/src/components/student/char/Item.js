@@ -22,7 +22,7 @@ const ItemBlock = styled.div`
   }
 `;
 
-const Item = ({ item_name, item_price, item_url, item_toggle, item_id }) => {
+const Item = ({ item_name, item_point, item_url, item_toggle, item_id }) => {
   //const [toggle, setToggle] = useState(false);
 
   const getToggle = (tg) => {
@@ -33,7 +33,7 @@ const Item = ({ item_name, item_price, item_url, item_toggle, item_id }) => {
     <ItemBlock>
       <img className="img" alt="character" src={item_url} />
       <div className="div">{item_name}</div>
-      <div className="div">{item_price}</div>
+      <div className="div">{item_point}콩</div>
       <ToggleButton txt="장바구니" getToggle={getToggle} />
     </ItemBlock>
   );

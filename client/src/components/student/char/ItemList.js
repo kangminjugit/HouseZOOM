@@ -23,7 +23,7 @@ const ItemText = styled.div`
   flex-direction: column;
   display: flex;
   justify-content: center;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
+  //box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
   padding: 2rem;
   width: 200px;
   height: 100%;

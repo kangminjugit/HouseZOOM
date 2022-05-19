@@ -82,6 +82,8 @@ const MyCharTemplate = () => {
   const [hairs, setHairs] = useState();
   const [tops, setTops] = useState();
   const [bottoms, setBottoms] = useState();
+  // const [all, setAll] = useState();
+
   // 토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
   const accessClient = axios.create({
@@ -91,62 +93,95 @@ const MyCharTemplate = () => {
     },
   });
 
-  // const rendering = () => {
-  //   const result = [];
-  //   for (let i = 0; i < 4; i++) {
-  //     result.push(<ItemButton url="/puang_img/puang_gibon.png" />);
-  //   }
-  //   return result;
-  // };
+  const divide_type = (arr) => {
+    const type_hair = [];
+    const type_top = [];
+    const type_bottom = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].type === 'hair') {
+        console.log(arr[i]);
+        type_hair.push(arr[i]);
+      } else if (arr[i].type === 'top') {
+        console.log(arr[i]);
+        type_top.push(arr[i]);
+      } else if (arr[i].type === 'bottom') {
+        console.log(arr[i]);
+        type_bottom.push(arr[i]);
+      }
+    }
+    setHairs(type_hair);
+    setTops(type_top);
+    setBottoms(type_bottom);
+  };
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setLoading(true);
-  //     const url_hair = '/api/avatar/my-item?type=hair';
-  //     const url_top = '/api/avatar/my-item?type=top';
-  //     const url_bottom = '/api/avatar/my-item?type=bottom';
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      //const url_hair = '/api/avatar/my-item?type=hair';
+      //const url_top = '/api/avatar/my-item?type=top';
+      //const url_bottom = '/api/avatar/my-item?type=bottom';
+      const url_all = '/api/avatar/my-item?type=*';
 
-  //     accessClient
-  //       .get(url_hair)
-  //       .then(function (response) {
-  //         console.log(response.data.data.items);
-  //         setHairs(response.data.data.items);
-  //       })
-  //       .catch(function (error) {
-  //         console.log(error);
-  //       });
+      accessClient
+        .get(url_all)
+        .then(function (response) {
+          console.log(response.data.data.items);
+          //setAll(response.data.data.items);
+          divide_type(response.data.data.items);
+          console.log(hairs);
+          console.log(tops);
+          console.log(bottoms);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
 
-  //     accessClient
-  //       .get(url_top)
-  //       .then(function (response) {
-  //         console.log(response.data.data.items);
-  //         setTops(response.data.data.items);
-  //       })
-  //       .catch(function (error) {
-  //         console.log(error);
-  //       });
+      // accessClient
+      //   .get(url_hair)
+      //   .then(function (response) {
+      //     console.log(response.data.data.items);
+      //     setHairs(response.data.data.items);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
 
-  //     accessClient
-  //       .get(url_bottom)
-  //       .then(function (response) {
-  //         console.log(response.data.data.items);
-  //         setBottoms(response.data.data.items);
-  //       })
-  //       .catch(function (error) {
-  //         console.log(error);
-  //       });
-  //     setLoading(false);
-  //   };
-  //   fetchData();
-  // }, []);
+      // accessClient
+      //   .get(url_top)
+      //   .then(function (response) {
+      //     console.log(response.data.data.items);
+      //     setTops(response.data.data.items);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
+
+      // accessClient
+      //   .get(url_bottom)
+      //   .then(function (response) {
+      //     console.log(response.data.data.items);
+      //     setBottoms(response.data.data.items);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
+
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
 
   if (loading) {
     return <div>로딩중</div>;
   }
 
-  if (!hairs) return setHairs(null_arr);
-  if (!tops) return setTops(null_arr);
-  if (!bottoms) return setBottoms(null_arr);
+  if (!hairs) return;
+  if (!tops) return;
+  if (!bottoms) return;
+
+  const handleClick = () => {
+    alert('완료');
+  };
 
   return (
     <MyCharTemplateBlock>
@@ -157,26 +192,41 @@ const MyCharTemplate = () => {
       <ItemBox>
         <SubItemBox>
           <div className="headline">헤어</div>
-          <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027698618_IMG_3755.PNG" />
-          {/* {hairs.map((hair, index) => (
-            <ItemButton key={index} url={hair.image} />
-          ))} */}
+          {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027698618_IMG_3755.PNG" /> */}
+          {hairs.map((hair, index) => (
+            <ItemButton
+              key={index}
+              url={hair.image}
+              item_id={hair.id}
+              item_toggle={hair.isUsed}
+            />
+          ))}
         </SubItemBox>
         <SubItemBox>
           <div className="headline">상의</div>
-          <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027893201_IMG_3756.PNG" />
-          {/* {tops.map((top, index) => (
-            <ItemButton key={index} url={top.image} />
-          ))} */}
+          {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027893201_IMG_3756.PNG" /> */}
+          {tops.map((top, index) => (
+            <ItemButton
+              key={index}
+              url={top.image}
+              item_id={top.id}
+              item_toggle={top.isUsed}
+            />
+          ))}
         </SubItemBox>
         <SubItemBox>
           <div className="headline">하의</div>
-          <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651028135275_IMG_3758.PNG" />
-          {/* {bottoms.map((bottom, index) => (
-            <ItemButton key={index} url={bottom.image} />
-          ))} */}
+          {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651028135275_IMG_3758.PNG" /> */}
+          {bottoms.map((bottom, index) => (
+            <ItemButton
+              key={index}
+              url={bottom.image}
+              item_id={bottom.id}
+              item_toggle={bottom.isUsed}
+            />
+          ))}
         </SubItemBox>
-        <Button fullWidth indigo>
+        <Button onClick={handleClick} fullWidth indigo to="/studentMyPage">
           장착하기
         </Button>
       </ItemBox>
