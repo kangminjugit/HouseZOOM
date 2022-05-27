@@ -46,11 +46,9 @@ var router = express.Router();
         next(error);
         return;
     }    
-
-    const connection = await pool.getConnection(async conn => conn);
     
     try{
-        [rows, fields] = await connection.query('SELECT * FROM teacher WHERE id = ?', [id]);
+        [rows, fields] = await pool.query('SELECT * FROM teacher WHERE id = ?', [id]);
         
         const isDuplicated = rows.length>0;
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -62,9 +60,7 @@ var router = express.Router();
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -109,10 +105,9 @@ var router = express.Router();
         return;
     }    
 
-    const connection = await pool.getConnection(async conn => conn);
     
     try{
-        [rows, fields] = await connection.query('SELECT * FROM student WHERE id = ?', [id]);
+        [rows, fields] = await pool.query('SELECT * FROM student WHERE id = ?', [id]);
         
         const isDuplicated = rows.length>0;
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -124,9 +119,7 @@ var router = express.Router();
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });

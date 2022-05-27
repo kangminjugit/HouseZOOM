@@ -46,10 +46,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         next(error);
         return;
     }   
-
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select * from time_table where class_id = ?', [classId]);
+        [rows, fields] = await pool.query('select * from time_table where class_id = ?', [classId]);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             "status": 'success',
@@ -59,9 +57,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -135,8 +131,10 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             throw error;
         }
 
+        connection.release();
+
         try{
-            await timeTable.forEach(async (elem) => {
+            const updateTimeTableFunction = async function(elem){
                 if(elem.day === undefined || elem.period === undefined || elem.subject === undefined || elem.zoom_url === undefined){
                     let error = new Error('잘못된 json형식입니다!');
                     error.status = 404;
@@ -149,15 +147,19 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                 
 
                 if(isExist.length > 0){
-                    await connection.query('UPDATE time_table SET subject = ? WHERE id = ?', [
+                    connection.query('UPDATE time_table SET subject = ? WHERE id = ?', [
                         elem.subject, isExist[0].id
                     ]);
                 }
-                else
-                    await connection.query('insert into time_table(day, period, subject, class_id, zoom_url) values(?, ?, ?, ?, ?)', [
+                else{
+                    connection.query('insert into time_table(day, period, subject, class_id, zoom_url) values(?, ?, ?, ?, ?)', [
                         elem.day, elem.period, elem.subject, classId, elem.zoom_url
                     ]);
-            });
+                }
+            }
+
+            await Promise.all(timeTable.map(elem => updateTimeTableFunction(elem)));
+
             res.set({ 'content-type': 'application/json; charset=utf-8' });
             res.send({
                 "status": 'success',
@@ -166,13 +168,13 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                 "message": '시간표가 성공적으로 저장되었습니다!'
             });
 
-            await connection.release();
+            connection.release();
         }catch(err){
             await connection.rollback();
             throw error;
         }
     }catch(error){
-        await connection.release();
+        connection.release();
         next(error);
     }
 });
@@ -223,9 +225,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         return;       
     }
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        await connection.query(
+        await pool.query(
             'DELETE FROM time_table WHERE class_id = ? ',
             [class_id]);
 
@@ -238,10 +239,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": null,
             "message": '성공적으로 시간표를 삭제하였습니다.'
         });  
-        await connection.release();
 
     }catch(error){
-        await connection.release();
         next(error);
     }
 });

@@ -52,9 +52,8 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.get(`/cur-item`,studentAuthMiddleware, async (req, res, next) => {
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image from my_item,item where my_item.item_id=item.id and my_item.is_cur=1 and my_item.student_id=?', [req.id]);
+        [rows, fields] = await pool.query('select item.id, item.name, item.type, item.image from my_item,item where my_item.item_id=item.id and my_item.is_cur=1 and my_item.student_id=?', [req.id]);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             "status": 'success',
@@ -64,9 +63,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -107,12 +104,11 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         return;
     }   
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
         if(type === '*'){
-            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image from my_item, item where my_item.item_id = item.id and my_item.student_id = ?', [req.id]);
+            [rows, fields] = await pool.query('select item.id, item.name, item.type, item.image, my_item.is_cur as isUsed from my_item, item where my_item.item_id = item.id and my_item.student_id = ?', [req.id]);
         }else{
-            [rows, fields] = await connection.query('select item.id, item.name, item.type, item.image from my_item, item where my_item.item_id = item.id and my_item.student_id = ? and item.type = ?', [req.id, type]);
+            [rows, fields] = await pool.query('select item.id, item.name, item.type, item.image, my_item.is_cur as isUsed from my_item, item where my_item.item_id = item.id and my_item.student_id = ? and item.type = ?', [req.id, type]);
         }
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
@@ -124,9 +120,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -134,7 +128,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
 /**
  * @swagger
- *  /api/avatar/put-on?id=#:
+ *  /api/avatar/put-on?itemId=#:
  *    post:
  *      tags: [Avatar]
  *      summary: 아이템 입기 api (학생 토큰 필요)
@@ -171,18 +165,15 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         next(error);
         return;
     }   
-
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select * from my_item where item_id = ? and student_id = ?', [itemId,req.id]);
-        
-        if(rows.length === 0){
-            const error = new Error('사용자가 가지고있지 않은 아이템입니다!');
+        [rows, fields] = await pool.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [1,itemId,req.id]);
+
+        if(rows.affectedRows === 0){
+            const error = new Error('사용자가 가지고 있지 않은 아이템입니다!');
             error.status = 403;
             next(error);
-            return;    
+            return;          
         }
-        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [1,itemId,req.id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -191,9 +182,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 착용하였습니다.'
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -201,7 +190,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
 /**
  * @swagger
- *  /api/avatar/take-off?id=#:
+ *  /api/avatar/take-off?itemId=#:
  *    post:
  *      tags: [Avatar]
  *      summary: 아이템 벗기 api (학생 토큰 필요)
@@ -239,17 +228,14 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         return;
     }   
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select * from my_item where item_id = ? and student_id = ?', [itemId,req.id]);
-        
-        if(rows.length === 0){
-            const error = new Error('사용자가 가지고있지 않은 아이템입니다!');
+        [rows, fields] = await pool.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [0,itemId,req.id]);
+        if(rows.affectedRows === 0){
+            const error = new Error('사용자가 가지고 있지 않은 아이템입니다!');
             error.status = 403;
             next(error);
-            return;    
+            return;          
         }
-        [rows, fields] = await connection.query('UPDATE my_item SET is_cur = ? where item_id = ? and student_id = ?', [0,itemId,req.id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -258,9 +244,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템을 성공적으로 해제하였습니다.'
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });

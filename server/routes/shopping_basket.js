@@ -27,12 +27,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.get(`/`,studentAuthMiddleware, async (req, res, next) => {
-
-    const connection = await pool.getConnection(async conn => conn);
     try{
-        [rows, fields] = await connection.query('select item.id, item.name, item.type, item.price, item.image from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?', [req.id]);
+        [rows, fields] = await pool.query('select item.id, item.name, item.type, item.price, item.image from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?', [req.id]);
         
-        console.log(rows);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
             "status": 'success',
@@ -42,9 +39,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             },
             "message": null
         });
-        await connection.release();
     }catch(error){
-        await connection.release();
         next(error);
     }
 });
@@ -89,15 +84,28 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.post(`/`,studentAuthMiddleware, async (req, res, next) => {
+    
     const items = req.body;
 
     const connection = await pool.getConnection(async conn => conn);
     try{
         var item_id_pairs = [];
-        items.forEach(item => {
+        Array.from(items).forEach(item => {
             item_id_pairs.push([item, req.id]);
         });
-        await connection.query('insert into shopping_basket(item_id, student_id) values ?', [item_id_pairs]);
+
+        if(item_id_pairs.length === 0){
+            res.set({ 'content-type': 'application/json; charset=utf-8' });
+            res.send({
+                "status": 'success',
+                "code": 200,
+                "data": {},
+                "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
+            });       
+            return;
+        }
+
+        await connection.query('insert into shopping_basket(item_id, student_id) values ?;', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -107,9 +115,9 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
         });
 
-        await connection.release();
+        connection.release();
     }catch(error){
-        await connection.release();
+        connection.release();
         if(error.code === 'ER_DUP_ENTRY'){
             let error = new Error('이미 장바구니에 존재하는 아이템이 있습니다.');
             error.status = 422;
@@ -160,13 +168,12 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  router.delete(`/`,studentAuthMiddleware, async (req, res, next) => {
     const items = req.body;
 
-    const connection = await pool.getConnection(async conn => conn);
     try{
         var item_id_pairs = [];
         items.forEach(item => {
             item_id_pairs.push([item, req.id]);
         });
-        await connection.query('delete from shopping_basket where (item_id, student_id) in (?)', [item_id_pairs]);
+        await pool.query('delete from shopping_basket where (item_id, student_id) in (?)', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res.send({
@@ -175,10 +182,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             "data": {},
             "message": '아이템이 성공적으로 장바구니에서 삭제되었습니다.'
         });
-
-        await connection.release();
     }catch(error){
-        await connection.release();
         if(error.code === 'ER_NO_REFERENCED_ROW_2'){
             let error = new Error('전체 아이템 리스트에 존재하지 않는 아이템이 있습니다.');
             error.status = 400;
@@ -212,15 +216,13 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
  */
 
  router.post(`/buy`,studentAuthMiddleware, async (req, res, next) => {
-    const items = req.body;
-
     const connection = await pool.getConnection(async conn => conn);
     try{
 
-        var [rows, fields] = await connection.query('select item.id, item.price from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?',[req.id]);
+        var [itemArr, fields] = await connection.query('select item.id, item.price from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?',[req.id]);
         var total_price = 0;
         var itemId_studentId_pairs = [];
-        rows.forEach(row => {
+        itemArr.forEach(row => {
             total_price += row.price;
             itemId_studentId_pairs.push([row.id, req.id]);
         });
@@ -235,19 +237,35 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             throw error;
         }
 
+        connection.release();
+
         try{
-            await connection.beginTransaction();
+            const connectionArr = [];
+            for(var i=0; i<3; i++){
+                connectionArr.push(await pool.getConnection(async conn => conn));
+            }
 
-            // 학생의 포인트 감소
-            await connection.query('update student set point = ? where id = ?', [point-total_price, req.id]);
-            
-            // 학생의 장바구니에서 아이템들 삭제
-            await connection.query('delete from shopping_basket where (item_id, student_id) in (?)', [itemId_studentId_pairs]);
+            const pointDecreaseFunction = async function(){
+                // 학생의 포인트 감소
+                return connectionArr[0].query('update student set point = ? where id = ?', [point-total_price, req.id]).then(result => result);
+            };
 
-            // 학생의 아이템 목록에 추가
-            await connection.query('insert into my_item(item_id, student_id) values ?',[itemId_studentId_pairs]);
+            const itemDeleteFunction = async function(){
+                // 학생의 장바구니에서 아이템들 삭제
+                return connectionArr[1].query('delete from shopping_basket where (item_id, student_id) in (?)', [itemId_studentId_pairs]).then(result => result);
+            };
 
-            await connection.commit();
+            const itemAddFunction = async function(){
+                // 학생의 아이템 목록에 추가
+                return connectionArr[2].query('insert into my_item(item_id, student_id) values ?',[itemId_studentId_pairs]).then(result => result);
+            };
+
+            await Promise.all([pointDecreaseFunction(), itemDeleteFunction(), itemAddFunction()]);
+
+            for(var i=0; i<3; i++){
+                await connectionArr[i].commit();
+                connectionArr[i].release();
+            }
 
             res.set({ 'content-type': 'application/json; charset=utf-8' });
             res.send({
@@ -257,14 +275,17 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
                 "message": '장바구니에 있는 아이템을 성공적으로 구매하였습니다.'
             });
 
-            await connection.release();
-
         }catch(err){
-            await connection.rollback();
+            for(var i=0; i<3; i++){
+                await connectionArr[i].rollback();
+            }
+
             throw err;
         }
     }catch(error){
-        await connection.release();
+        for(var i=0; i<3; i++){
+            connectionArr[i].release();
+        }
         next(error);
     }
 });
