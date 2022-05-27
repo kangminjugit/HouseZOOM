@@ -1,5 +1,5 @@
 // api 함수 작성
-import client from './client';
+import client from '../../axiosConfig';
 
 export const login = ({ id, password }) =>
   client.post('/api/login/teacher', { id, password });

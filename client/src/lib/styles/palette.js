@@ -24,6 +24,16 @@ const palette = {
     '#3b5bdb',
     '#364fc7',
   ],
+  mint: [
+    '#23c6a5',
+    '#5dd0b3',
+    '#84dac2',
+    '#a5e4d1',
+    '#c4ede0',
+    '#e2f6ef',
+    '#ffffff',
+  ],
+  zipzoom: ['#FE5D7D', '#5DD0B3', '#fe8aa2'],
 };
 
 export default palette;

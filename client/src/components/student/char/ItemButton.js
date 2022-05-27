@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import palette from '../../../lib/styles/palette';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../../axiosConfig';
 
 const StyledButton = styled.button`
   width: 75px;
@@ -24,7 +25,7 @@ const StyledButton = styled.button`
 const ItemButton = ({ url, item_id, item_toggle }) => {
   // 토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
-  const accessClient = axios.create({
+  const accessClient = client.create({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

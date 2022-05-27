@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../../axiosConfig';
 
 const null_arr = [''];
 
@@ -10,7 +11,7 @@ const Character = () => {
 
   //토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
-  const accessClient = axios.create({
+  const accessClient = client.create({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

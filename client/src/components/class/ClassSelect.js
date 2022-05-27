@@ -3,7 +3,8 @@ import { Box } from '@material-ui/core/index';
 import { InputLabel } from '@material-ui/core/index';
 import { FormControl } from '@material-ui/core/index';
 import { NativeSelect } from '@material-ui/core/index';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../axiosConfig';
 import styled, { css } from 'styled-components';
 import palette from '../../lib/styles/palette';
 
@@ -128,7 +129,7 @@ export default function NativeSelectDemo() {
 
   // 토큰
   const token = JSON.parse(localStorage.getItem('teacher_user'));
-  const accessClient = axios.create({
+  const accessClient = client.create({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -209,7 +210,7 @@ export default function NativeSelectDemo() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/school/location', {
+        const response = await client.get('/api/school/location', {
           params: {
             school_location: city,
           },

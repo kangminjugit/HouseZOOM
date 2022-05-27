@@ -1,6 +1,6 @@
 import React from 'react';
+import StudentRegister from '../components/student/StudentRegister';
 import AuthTemplate from '../components/auth/AuthTemplate';
-import StudentRegisterForm from '../containers/auth/StudentRegisterForm';
 import Header from '../components/base/Header';
 
 const StudentRegisterPage = () => {
@@ -8,7 +8,7 @@ const StudentRegisterPage = () => {
     <div>
       <Header type="studentRegister" />
       <AuthTemplate>
-        <StudentRegisterForm />
+        <StudentRegister />
       </AuthTemplate>
     </div>
   );
