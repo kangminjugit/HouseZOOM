@@ -1,11 +1,12 @@
 import React from 'react';
 import Header from '../../components/base/Header';
+import StudentManageTemplate from '../../components/teacher/StudentManageTemplate';
 
 const ManageStudentPage = () => {
   return (
     <div>
       <Header type="teacher" />
-      학생 포인트 현황
+      <StudentManageTemplate />
     </div>
   );
 };

@@ -34,12 +34,18 @@ const LandingPage = () => {
       <>
         <Header type="landing" />
         <LandingTemplateBlock>
-          <BigButton indigo to="/studentLanding">
-            학생
-          </BigButton>
-          <BigButton indigo to="/teacherLanding">
-            선생님
-          </BigButton>
+          <BigButton
+            indigo
+            to="/studentLogin"
+            url="/icon/free-icon-student-257651.png"
+            type="학생"
+          />
+          <BigButton
+            indigo
+            to="/teacherLogin"
+            url="/icon/free-icon-teacher-1995574.png"
+            type="선생님"
+          />
         </LandingTemplateBlock>
       </>
     );

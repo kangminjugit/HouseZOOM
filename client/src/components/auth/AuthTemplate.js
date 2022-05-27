@@ -20,8 +20,12 @@ const AuthTemplateBlock = styled.div`
 // White Box
 const WhiteBox = styled.div`
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
+  font-family: nanum;
+  font-weight: bold;
+  border: 4px solid ${palette.gray[7]};
   padding: 2rem;
-  width: 360px;
+  //width: 360px;
+  width: 500px;
   background: ${palette.gray[0]};
   border-radius: 15px;
 `;

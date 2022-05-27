@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import palette from '../../../lib/styles/palette';
 import Button from '../../common/Button';
 import ItemList from './ItemList';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../../axiosConfig';
 
 const null_arr = [''];
 
@@ -57,7 +58,7 @@ const ShoppingTemplate = () => {
 
   // 토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
-  const accessClient = axios.create({
+  const accessClient = client.create({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

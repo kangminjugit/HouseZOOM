@@ -20,8 +20,8 @@ const App = () => {
   return (
     <>
       <Route component={LandingPage} path="/" exact />
-      <Route component={StudentLandingPage} path="/studentLanding" />
-      <Route component={TeacherLandingPage} path="/teacherLanding" />
+      {/* <Route component={StudentLandingPage} path="/studentLanding" />
+      <Route component={TeacherLandingPage} path="/teacherLanding" /> */}
       <Route component={LoginPage} path="/login" />
       <Route component={StudentLoginPage} path="/studentLogin" />
       <Route component={TeacherLoginPage} path="/teacherLogin" />

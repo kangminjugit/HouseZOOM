@@ -4,7 +4,8 @@ import palette from '../../../lib/styles/palette';
 import Character from './Character';
 import ItemButton from './ItemButton';
 import Button from '../../common/Button';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../../axiosConfig';
 
 const null_arr = [''];
 
@@ -86,7 +87,7 @@ const MyCharTemplate = () => {
 
   // 토큰
   const token = JSON.parse(localStorage.getItem('student_user'));
-  const accessClient = axios.create({
+  const accessClient = client.create({
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,

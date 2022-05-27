@@ -7,11 +7,13 @@ import { initializeForm } from '../../modules/auth';
 
 const StyledButton = styled.button`
   border: none;
-  border-radius: 4px;
+  // border-radius: 4px;
+  // border: 4px solid ${palette.gray[7]};
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: bold;
   padding: 0.25rem 1rem;
-  color: white;
+  color: black;
   outline: none;
   cursor: pointer;
 
@@ -32,9 +34,10 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.indigo[9]};
+      background: ${palette.mint[3]};
+
       &:hover {
-        background: ${palette.indigo[7]};
+        background: ${palette.mint[0]};
       }
     `}
 `;

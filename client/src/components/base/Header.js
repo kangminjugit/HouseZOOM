@@ -8,6 +8,7 @@ import palette from '../../lib/styles/palette';
 import HeaderLink from './HeaderLink';
 
 const HeaderBlock = styled.div`
+  font-family: nanum;
   position: fixed;
   width: 100%;
   background: white;
@@ -15,22 +16,26 @@ const HeaderBlock = styled.div`
 `;
 
 const Wrapper = styled(Responsive)`
-  height: 4rem;
+  height: 5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: row;
   .logo {
-    font-family: sans-serif;
     font-weight: bolder;
     color: ${palette.indigo[9]};
-    font-size: 1.75rem;
-    //font-weight: 800;
+    font-size: 2rem;
     letter-spacing: 2px;
   }
   .right {
     display: flex;
     //align-items: center;
+  }
+  .img {
+    margin-top: 1rem;
+    height: 150px;
+    width: 150px;
+    object-fit: contain;
   }
 `;
 const Spacer = styled.div`
@@ -44,8 +49,8 @@ const Header = ({ type, user }) => {
         {/* <Wrapper> */}
         {type === 'teacher' && (
           <Wrapper>
-            <Link to="/teacherMyPage" className="logo">
-              ZIPZOOM
+            <Link to="/teacherMyPage">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <HeaderLink type="teacher" />
@@ -54,8 +59,8 @@ const Header = ({ type, user }) => {
         )}
         {type === 'student' && (
           <Wrapper>
-            <Link to="/studentMyPage" className="logo">
-              ZIPZOOM
+            <Link to="/studentMyPage">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <HeaderLink type="student" />
@@ -64,15 +69,15 @@ const Header = ({ type, user }) => {
         )}
         {type === 'landing' && (
           <Wrapper>
-            <Link to="/" className="logo">
-              ZIPZOOM
+            <Link to="/">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
           </Wrapper>
         )}
         {type === 'studentLogin' && (
           <Wrapper>
-            <Link to="/" className="logo">
-              ZIPZOOM
+            <Link to="/">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <Button indigo to="/studentRegister">
@@ -83,8 +88,8 @@ const Header = ({ type, user }) => {
         )}
         {type === 'teacherLogin' && (
           <Wrapper>
-            <Link to="/" className="logo">
-              ZIPZOOM
+            <Link to="/">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <Button indigo to="/teacherRegister">
@@ -95,8 +100,8 @@ const Header = ({ type, user }) => {
         )}
         {type === 'studentRegister' && (
           <Wrapper>
-            <Link to="/" className="logo">
-              ZIPZOOM
+            <Link to="/">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <Button indigo to="/studentLogin">
@@ -107,8 +112,8 @@ const Header = ({ type, user }) => {
         )}
         {type === 'teacherRegister' && (
           <Wrapper>
-            <Link to="/" className="logo">
-              ZIPZOOM
+            <Link to="/">
+              <img className="img" alt="집zoom" src="/icon/logo.png" />
             </Link>
             <div className="right">
               <Button indigo to="/teacherLogin">

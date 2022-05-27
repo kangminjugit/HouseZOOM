@@ -9,7 +9,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
+import client from '../../axiosConfig';
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -112,7 +113,7 @@ const TimeTable = () => {
         //const response = await axios.get('/api/time-table?classId=23');
         const url =
           '/api/time-table?classId=' + localStorage.getItem('classId');
-        const response = await axios.get(url);
+        const response = await client.get(url);
         setTime_table(create_row(response.data.data.time_table));
       } catch (e) {
         console.log(e);
