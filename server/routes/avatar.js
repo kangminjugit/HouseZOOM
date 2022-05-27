@@ -248,4 +248,94 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         next(error);
     }
 });
+
+
+/**
+ * @swagger
+ *  /api/avatar/class?classId=#:
+ *    get:
+ *      tags: [Avatar]
+ *      summary: 반 학생들 캐릭터들이 현재 입고있는 아이템들 조회 api
+ *      produces:
+ *      - "application/json; charset=utf-8"
+ *      parameters:
+ *          - in: query
+ *            name: classId
+ *            schema:
+ *              type: integer
+ *            required: true
+ *            description: 조회하고싶은 반의 아이디
+ *      responses:
+ *          '200':
+ *              description: OK
+ *              content:
+ *                  "application/json; charset=utf-8":
+ *                      schema:
+ *                          type: object
+ */
+
+ router.get(`/class`, async (req, res, next) => {
+    const {classId} = req.query;
+
+    if(classId === '' || classId === undefined){
+        const error = new Error('classId is required!');
+        error.status = 400;
+        next(error);
+        return;
+    }   
+
+    try{
+        var [rows, fields] = await pool.query("select student.id as student_id, student.name as student_name,item_type, item_image\
+        from student left outer join (\
+            select item.id as id, my_item.student_id as student_id, item.image as item_image, item.type as item_type\
+            from item, my_item\
+            where item.id = my_item.item_id\
+        ) as item\
+        on student.id = item.student_id\
+        where student.class_id = ?", [classId]);
+        
+        var studentDict = {};
+        rows.forEach(row => {
+            if(!studentDict[row['student_id']]){
+                studentDict[row['student_id']] = {};
+                studentDict[row['student_id']]['student_name'] = row['student_name'];
+            }
+
+            if(!studentDict[row['student_id']]['itemList']){
+                studentDict[row['student_id']]['itemList'] = [];
+            }
+
+            if(!(row['item_type'] == null || row['item_image'] == null)){
+                studentDict[row['student_id']]['itemList'].push({
+                    'item_type': row['item_type'],
+                    'item_image': row['item_image']
+                });                
+            }
+
+        });
+
+        var result = [];
+        for (var key in studentDict) {
+            if (studentDict.hasOwnProperty(key)) {
+                result.push( {
+                    'student_id': key,
+                    'student_name' : studentDict[key]['student_name'],
+                    'itemList': studentDict[key]['itemList']
+                });
+            }
+        }
+
+        res.set({ 'content-type': 'application/json; charset=utf-8' });
+        res.send({
+            "status": 'success',
+            "code": 200,
+            "data": {
+                "result": result
+            },
+            "message": null
+        });
+    }catch(error){
+        next(error);
+    }
+});
 module.exports = router;
