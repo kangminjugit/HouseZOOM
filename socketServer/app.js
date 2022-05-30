@@ -11,11 +11,11 @@ const internal = require('stream');
 const http = require('./api');
 const {addUser} = require('./user');
 
-// var path = require('path');
-// var cookieParser = require('cookie-parser');
-// var logger = require('morgan');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
 
-// var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
 
 var studentSockets = {};
@@ -50,17 +50,17 @@ function quizTimeoutFunction(socket, classId, answer){
           headers: { Authorization: `Bearer ${quiz[classId]['accessToken']}` },
         } );
 
-        // // api로 db 업데이트
-        // axios.post('http://3.35.141.211:3000/api/badge',{
-        //   'studentId' : studentId,
-        //   'point':point,
-        //   'subject': subject,
-        //   'description': '퀴즈 '
-        // },{
-        //   headers: { Authorization: `Bearer ${accessToken}` },
-        // } ).then(res => {
+        // api로 db 업데이트
+        axios.post('http://3.35.141.211:3000/api/badge',{
+          'studentId' : studentId,
+          'point':quiz[classId]['point']  ,
+          'subject': quiz[classId]['badgeSubject'],
+          'description': quiz[classId]['badgeDescription']
+        },{
+          headers: { Authorization: `Bearer ${quiz[classId]['accessToken']}` },
+        } ).then(res => {
           
-        // });
+        });
       }
 
       studentAnswerArr.push({
@@ -73,6 +73,9 @@ function quizTimeoutFunction(socket, classId, answer){
   teacherSockets[quiz[classId]['teacherId']].emit('quiz_timeout', {
     'data': {
       'message': '퀴즈가 종료되었습니다!',
+      'is_ox':quiz[classId]['is_ox'],
+      'problem':quiz[classId]['problem'],
+      'choices': quiz[classId]['is_ox']? ['O','X'] : quiz[classId]['multiChoices'] ,
       'studentAnswerArr': studentAnswerArr
     }
   });
@@ -216,15 +219,17 @@ io.on('connection', (socket) => {
   })
 
   socket.on('give_ox_quiz', (data, callback) => {
-    const {data: {classId,teacherId,accessToken, problem, answer, timeLimitMin, timeLimitSec, point}} = data;
+    const {data: {classId,teacherId,accessToken, problem, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
 
     quiz[classId] = {
       'is_ox': true,
       'problem': problem, 
-      'answer': answer === 'O' ? 1 : 2,
+      'answer': answer,
       'point': point ,
       'teacherId':teacherId,
-      'accessToken':accessToken
+      'accessToken':accessToken,
+      'badgeSubject':badgeSubject,
+      'badgeDescription':badgeDescription
     };
 
     socket.to(classId).emit('get_ox_quiz', {
@@ -236,20 +241,22 @@ io.on('connection', (socket) => {
       }
     });
 
-    setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, answer === 'O' ? 1 : 2);
+    setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, answer);
   })
 
 
   socket.on('give_choice_quiz', (data, callback) => {
-    const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badge}} = data;
+    const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
     quiz[classId] = {
       'is_ox': false,
       'problem': problem, 
+      'multiChoices':multiChoices,
       'answer': parseInt(answer),
       'point': point ,
       'teacherId':teacherId,
       'accessToken':accessToken,
-      'badge': badge
+      'badgeSubject': badgeSubject,
+      'badgeDescription': badgeDescription
     };
 
     socket.to(classId).emit('get_choice_quiz', {
@@ -293,23 +300,23 @@ server.listen(PORT, () => {
 // app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', indexRouter);
+app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
-// // catch 404 and forward to error handler
-// app.use(function(req, res, next) {
-//   next(createError(404));
-// });
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
 
-// // error handler
-// app.use(function(err, req, res, next) {
-//   // set locals, only providing error in development
-//   res.locals.message = err.message;
-//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-//   // render the error page
-//   res.status(err.status || 500);
-//   res.render('error');
-// });
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
 
 module.exports = app;
