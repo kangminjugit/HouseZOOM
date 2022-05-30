@@ -89,75 +89,6 @@ function quizTimeoutFunction(socket, classId, answer){
 
 io.on('connection', (socket) => {
   var newQuizId = 0;
-  
-  // 로그인 요청 처리
-  socket.on('login', async (data, callback) => {
-    // const {classId} = data;
-    // socket.join(classId);
-    // console.log('login request');
-    const {id, password, isTeacher} = data;
-    const {accessToken, classId,name, error} = await addUser(socket.id, id, password, isTeacher);
-    
-    // 로그인 중 에러 처리
-    if(error) {
-      console.log(error);
-      socket.emit('error', {
-        message: error.message
-      });
-      return;
-    }
-
-
-    try{
-      await mongoClient.connect();
-      const collection = mongoClient.db(DB).collection(COLLECTION);
-
-      const filter = {classId: classId};
-      const options = {upsert: true};
-      var updateDoc = {};
-
-      if(isTeacher){
-        updateDoc = {
-          $set:{
-            'teacher.id':id,
-            'teacher.name':name,
-            'teacher.accessToken':accessToken,
-            'teacher.socket':socket
-          }
-        };
-
-        socket.emit('get_teacher_login_info', {
-          data: {
-            accessToken: accessToken,
-            classId: classId,
-            name: name,
-          }
-        });
-      }else{
-        updateDoc = {
-          $push:{
-            studentArr:{
-              id: id,
-              name: name,
-              socket: socket
-            }
-          }
-        };
-        socket.join(classId);
-        socket.emit('get_student_login_info', {
-          data: {
-            accessToken: accessToken,
-            classId: classId,
-            name: name
-          }
-        });
-      }
-      const result = await collection.updateOne(filter, updateDoc, options);
-      console.log(result);
-    }finally{
-      await mongoClient.close();
-    }
-  })
 
   socket.on('choose_class', async(data, callback) => {
     const {data: {accessToken, classId}} = data;
@@ -165,30 +96,76 @@ io.on('connection', (socket) => {
   });
 
   socket.on('student_join_class',async(data, callback) => {
-    const {data: {studentId, classId}} = data;
-    socket.join(classId);
-    studentSockets[studentId] = socket;
+    const {data: {studentId, classId, name}} = data;
 
+    // 속한 반에 해당하는 room에 join
+    socket.join(classId);
     console.log(studentId+' joined');
 
     // 접속한 학생 저장
+    studentSockets[studentId] = socket;
     if(!classes[classId]){
       classes[classId] = [];
     }
     classes[classId].push(studentId);
+    
+    // MongoDB에 학생 정보 저장
+    try{
+      await mongoClient.connect();
+      const collection = mongoClient.db(DB).collection(COLLECTION);
+
+      const filter = {classId: classId};
+      const options = {upsert: true};
+      const updateDoc = {
+        $push:{
+          studentArr:{
+            id: studentId,
+            name: name,
+            socket: socket
+          }
+        }
+      };
+      const result = await collection.updateOne(filter, updateDoc, options);
+      console.log(result);
+    }finally{
+      await mongoClient.close();
+    }
   });
 
   socket.on('teacher_join_class',async(data, callback) => {
-    const {data: {teacherId, classId}} = data;
-    socket.join(classId);
-    teacherSockets[teacherId] = socket;
+    const {data: {teacherId, classId, name}} = data;
 
+    // 속한 반에 해당하는 room에 join
+    socket.join(classId);
     console.log(teacherId+' joined');
-    // 접속한 학생 저장
+
+    // 접속한 선생님 정보 저장
+    teacherSockets[teacherId] = socket;
     if(!classes[classId]){
       classes[classId] = [];
     }
     classes[classId].push(teacherId);
+
+    // MongoDB에 선생님 정보 저장
+    try{
+      await mongoClient.connect();
+      const collection = mongoClient.db(DB).collection(COLLECTION);
+
+      const filter = {classId: classId};
+      const options = {upsert: true};
+      const updateDoc = {
+        $set:{
+          'teacher.id':teacherID,
+          'teacher.name':name,
+          'teacher.accessToken':accessToken,
+          'teacher.socket':socket
+        }
+      };
+      const result = await collection.updateOne(filter, updateDoc, options);
+      console.log(result);
+    }finally{
+      await mongoClient.close();
+    }
   });
 
   socket.on('give_point', async(data, callback) => {
