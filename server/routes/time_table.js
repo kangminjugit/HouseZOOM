@@ -141,8 +141,8 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                     throw error;
                 }
 
-                var [isExist] = await connection.query('select * from time_table where day = ? and period = ?', [
-                    elem.day, elem.period
+                var [isExist] = await connection.query('select * from time_table where day = ? and period = ? and class_id = ?', [
+                    elem.day, elem.period, classId
                 ]);
                 
 
