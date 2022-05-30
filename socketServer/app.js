@@ -1,22 +1,28 @@
 // var createError = require('http-errors');
 const app = require('express')();
-const server = require('http').createServer(app);
-const PORT = 4040;
+const http = require('http');
+const server = http.createServer(app);
 const io = require('socket.io')(server);
 const axios = require('axios');
-const { access } = require('fs');
-const jwt = require('jsonwebtoken');
-const { type } = require('os');
-const internal = require('stream');
-const http = require('./api');
+// const { access } = require('fs');
+// const jwt = require('jsonwebtoken');
+// const { type } = require('os');
+// const internal = require('stream');
+// const http = require('./api');
 const {addUser} = require('./user');
 
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+// var path = require('path');
+// var cookieParser = require('cookie-parser');
+// var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
+// var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
+const {MongoClient} = require('mongodb');
+
+const mongoClient = new MongoClient('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com');
+const PORT = 4040;
+const DB = 'housezoom';
+const COLLECTION = 'room';
 
 var studentSockets = {};
 var teacherSockets = {};
@@ -90,7 +96,7 @@ io.on('connection', (socket) => {
     // socket.join(classId);
     // console.log('login request');
     const {id, password, isTeacher} = data;
-    const {accessToken, classId, error} = await addUser(socket.id, id, password, isTeacher);
+    const {accessToken, classId,name, error} = await addUser(socket.id, id, password, isTeacher);
     
     // 로그인 중 에러 처리
     if(error) {
@@ -101,24 +107,55 @@ io.on('connection', (socket) => {
       return;
     }
 
-    // 선생님 유저인 경우 access token과 등록된 반 리스트 전송
-    if(isTeacher){
-      socket.emit('get_teacher_login_info', {
-        data: {
-          accessToken: accessToken,
-          classId: classId
-        }
-      });
-    }
-    // 학생 유저인 경우 해당 반아이디 room에 접속 ,access token과 등록된 반 전송 
-    else{
-      socket.join(classId);
-      socket.emit('get_student_login_info', {
-        data: {
-          accessToken: accessToken,
-          classId: classId
-        }
-      });
+
+    try{
+      await mongoClient.connect();
+      const collection = mongoClient.db(DB).collection(COLLECTION);
+
+      const filter = {classId: classId};
+      const options = {upsert: true};
+      var updateDoc = {};
+
+      if(isTeacher){
+        updateDoc = {
+          $set:{
+            'teacher.id':id,
+            'teacher.name':name,
+            'teacher.accessToken':accessToken,
+            'teacher.socket':socket
+          }
+        };
+
+        socket.emit('get_teacher_login_info', {
+          data: {
+            accessToken: accessToken,
+            classId: classId,
+            name: name,
+          }
+        });
+      }else{
+        updateDoc = {
+          $push:{
+            studentArr:{
+              id: id,
+              name: name,
+              socket: socket
+            }
+          }
+        };
+        socket.join(classId);
+        socket.emit('get_student_login_info', {
+          data: {
+            accessToken: accessToken,
+            classId: classId,
+            name: name
+          }
+        });
+      }
+      const result = await collection.updateOne(filter, updateDoc, options);
+      console.log(result);
+    }finally{
+      await mongoClient.close();
     }
   })
 
@@ -126,12 +163,6 @@ io.on('connection', (socket) => {
     const {data: {accessToken, classId}} = data;
     socket.join(classId);
   });
-
-  // socket.on('createQuiz', message => {
-  //   // 퀴즈 타입(객관식 or OX), 문제, 선지, 답과 함께 퀴즈 생성
-  //   const {type, quiz, elems, answer} = message;
-
-  // })
 
   socket.on('student_join_class',async(data, callback) => {
     const {data: {studentId, classId}} = data;
@@ -300,7 +331,7 @@ server.listen(PORT, () => {
 // app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+// app.use('/', indexRouter);
 // app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

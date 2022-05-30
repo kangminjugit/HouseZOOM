@@ -27,8 +27,9 @@ const addUser = async (socketId, userId, userPassword, isTeacher) => {
 
         const accessToken = response.data.data.accessToken;
         const classId = response.data.data.classId;
+        const name = response.data.data.name;
 
-        return {accessToken, classId};
+        return {accessToken, classId, name};
     }catch(error){
         error = error.response.data;
         return {error};

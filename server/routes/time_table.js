@@ -135,7 +135,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
 
         try{
             const updateTimeTableFunction = async function(elem){
-                if(elem.day === undefined || elem.period === undefined || elem.subject === undefined || elem.zoom_url === undefined){
+                if(elem.day === undefined || elem.period === undefined || elem.subject === undefined){
                     let error = new Error('잘못된 json형식입니다!');
                     error.status = 404;
                     throw error;
@@ -147,14 +147,28 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
                 
 
                 if(isExist.length > 0){
-                    connection.query('UPDATE time_table SET subject = ? WHERE id = ?', [
-                        elem.subject, isExist[0].id
-                    ]);
+                    if(elem.zoom_url === undefined){
+                        connection.query('UPDATE time_table SET subject = ? WHERE id = ?', [
+                            elem.subject, isExist[0].id
+                        ]);                        
+                    }else{
+                        connection.query('UPDATE time_table SET subject = ? , zoom_url = ? WHERE id = ?', [
+                            elem.subject,elem.zoom_url, isExist[0].id
+                        ]);
+                    }
+
                 }
                 else{
-                    connection.query('insert into time_table(day, period, subject, class_id, zoom_url) values(?, ?, ?, ?, ?)', [
-                        elem.day, elem.period, elem.subject, classId, elem.zoom_url
-                    ]);
+                    if(elem.zoom_url === undefined){
+                        connection.query('insert into time_table(day, period, subject, class_id, zoom_url) values(?, ?, ?, ?, ?)', [
+                            elem.day, elem.period, elem.subject, classId, elem.zoom_url
+                        ]);
+                    }else{
+                        connection.query('insert into time_table(day, period, subject, class_id) values(?, ?, ?, ?)', [
+                            elem.day, elem.period, elem.subject, classId
+                        ]);
+                    }
+
                 }
             }
 
@@ -171,7 +185,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             connection.release();
         }catch(err){
             await connection.rollback();
-            throw error;
+            throw err;
         }
     }catch(error){
         connection.release();

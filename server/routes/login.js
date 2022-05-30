@@ -76,6 +76,8 @@ router.post('/teacher', async (req, res, next) => {
             throw error;  
         }
 
+        const {name} = rows[0];
+
         const isAuthorized = await bcrypt.compare(password, rows[0]['password']);
         if(!isAuthorized){
             const error = new Error('잘못된 비밀번호입니다!');
@@ -105,7 +107,8 @@ router.post('/teacher', async (req, res, next) => {
             "data": {
                 "accessToken": accessToken,
                 "refreshToken": refreshToken,
-                "classId" : rows.map(elem => elem.class_id)
+                "classId" : rows.map(elem => elem.class_id),
+                'name':name
             },
             "message": 'login success'
         });
@@ -177,7 +180,7 @@ router.post('/teacher', async (req, res, next) => {
             throw error;  
         }
 
-        const {class_id} = rows[0];
+        const {class_id, name} = rows[0];
 
         const isAuthorized = await bcrypt.compare(password, rows[0]['password']);
         if(!isAuthorized){
@@ -204,7 +207,8 @@ router.post('/teacher', async (req, res, next) => {
             "data": {
                 "accessToken": accessToken,
                 "refreshToken": refreshToken,
-                "classId": class_id
+                "classId": class_id,
+                'name':name
             },
             "message": 'login success'
         });
