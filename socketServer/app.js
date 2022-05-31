@@ -3,7 +3,9 @@ const app = require('express')();
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
+// const io = require('socket.io').listen(4040);
 const axios = require('axios');
+const { ObjectId } = require('mongodb');
 // const { access } = require('fs');
 // const jwt = require('jsonwebtoken');
 // const { type } = require('os');
@@ -22,7 +24,16 @@ const PORT = 4040;
 const DB = 'housezoom';
 const COLLECTION = 'room';
 
-function quizTimeoutFunction(socket, classId, answer){
+app.get('/', (req, res) => {
+  res.send('socket server is running');
+})
+
+server.listen(PORT, () => {
+  console.log('listening on http://localhost:4040/');
+})
+
+
+const quizTimeoutFunction = ( classId) => {
   // MongoDB에서 접속한 학생들 찾고 퀴즈 결과 알리기
   mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
     if(err) throw err;
@@ -30,75 +41,96 @@ function quizTimeoutFunction(socket, classId, answer){
     var collection = db.db(DB).collection(COLLECTION);
     var query = {classId: classId};
     var projection = {
+      _id: 1,
       teacher: 1,
       studentArr: 1,
-      quizArr: {'$slice': -1}
+      quizArr: 1
     };
-    collection.find(query,projection, function(err, res){
+    collection.findOne(query,projection, async function(err, res){
       if(err) throw err;
 
-      var teacher = res.teacher;
-      var teacherSocket = io.sockets.connected[teacher.socketId]; 
-      var studentArr = res.studentArr;
-      var quiz = res.quizArr[0];
+      var teacher = res['teacher'];
+      var teacherSocket = io.sockets.sockets.get(res['teacher']['socketId']);
+      var studentArr = res['studentArr'];
+      var quiz = res['quizArr'][res['quizArr'].length-1];
 
-      studentArr.forEach(student => {
-        var studentId = student.id;
-        var studentSocket = io.sockets.connected[student.socketId];
-        var studentAnswer = quiz.studentAnswer.find(elem => elem.id === student.id);
+      console.log(quiz);
 
-        if(studentSocket){
-          studentSocket.emit('quiz_timeout', {
-            'data':{
-              'message': '퀴즈가 종료되었습니다!',
-              'is_ox': quiz.isOX,
-              'answer': quiz.answer,
-              'studentAnswer': studentAnswer,
-              'is_correct': answer === studentAnswer ? true: false,
-            }
-          });
-    
-          if(answer === studentAnswer){
-            // api로 db 업데이트
-            axios.post('http://3.35.141.211:3000/api/point',{
-              'is_ox': quiz.isOX,
-              'studentId' : studentId,
-              'point':quiz.point       
-            },{
-              headers: { Authorization: `Bearer ${teacher.accessToken}` },
-            } );
-    
-            // api로 db 업데이트
-            axios.post('http://3.35.141.211:3000/api/badge',{
-              'studentId' : studentId,
-              'point':quiz.point  ,
-              'subject': quiz.badge.subject,
-              'description': quiz.badge.description
-            },{
-              headers: { Authorization: `Bearer ${teacher.accessToken}` },
-            } ).then(res => {
-              
+      // console.log(teacher, studentArr, quiz);
+
+      query = {classId: classId};
+
+      options = {
+        projection:{
+          studentAnswerArr: {$elemMatch: {quizId: quiz['id']}}
+        }
+      };
+
+      collection.findOne(query, options, function(err, res){
+       
+        console.log(res);
+        // console.log(arr);
+
+        var studentAnswerArr = res.studentAnswerArr;
+        studentArr.forEach(student => {
+          var studentId = student.id;
+          var studentSocket = io.sockets.sockets.get(student.socketId);
+          var studentAnswer = studentAnswerArr.find(elem => elem.id === student.id);
+  
+          if(studentSocket){
+            studentSocket.emit('quiz_timeout', {
+              'data':{
+                'message': '퀴즈가 종료되었습니다!',
+                'is_ox': quiz.isOX,
+                'answer': quiz.answer,
+                'studentAnswer': studentAnswer.answer,
+                'is_correct': quiz.answer === studentAnswer.answer? true: false,
+              }
             });
+      
+            if(quiz.answer === studentAnswer){
+              // api로 db 업데이트
+              axios.post('http://3.35.141.211:3000/api/point',{
+                'is_ox': quiz.isOX,
+                'studentId' : studentId,
+                'point':quiz.point       
+              },{
+                headers: { Authorization: `Bearer ${teacher.accessToken}` },
+              } );
+      
+              // api로 db 업데이트
+              axios.post('http://3.35.141.211:3000/api/badge',{
+                'studentId' : studentId,
+                'point':quiz.point  ,
+                'subject': quiz.badge.subject,
+                'description': quiz.badge.description
+              },{
+                headers: { Authorization: `Bearer ${teacher.accessToken}` },
+              } ).then(res => {
+                
+              });
+            }
           }
-        }
-      }) 
+        });
 
-      teacherSocket.emit('quiz_timeout', {
-        'data': {
-          'message': '퀴즈가 종료되었습니다!',
-          'is_ox':quiz.isOX,
-          'problem':quiz.problem,
-          'choices': quiz.choices,
-          'studentAnswerArr': studentArr
-        }
+        teacherSocket.emit('quiz_timeout', {
+          'data': {
+            'message': '퀴즈가 종료되었습니다!',
+            'is_ox':quiz.isOX,
+            'problem':quiz.problem,
+            'choices': quiz.choices,
+            'studentAnswerArr': studentAnswerArr
+          }
+        });
+
+        db.close();
       });
     });
-
-    db.close();
   });
-}
+};
 
 io.on('connection', (socket) => {
+  
   socket.on('choose_class', async(data, callback) => {
     const {data: {accessToken, classId}} = data;
     socket.join(classId);
@@ -109,7 +141,6 @@ io.on('connection', (socket) => {
 
     // 속한 반에 해당하는 room에 join
     socket.join(classId);
-    console.log(studentId, classId, name);
     
     // MongoDB에 학생 정보 저장
     mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
@@ -121,7 +152,7 @@ io.on('connection', (socket) => {
           studentArr:{
             id: studentId,
             name: name,
-            socket: socket
+            socketId: socket.id
           }
         }
       };
@@ -138,7 +169,6 @@ io.on('connection', (socket) => {
 
     // 속한 반에 해당하는 room에 join
     socket.join(classId);
-    console.log(teacherId, classId, name, socket.id);
 
     // MongoDB에 선생님 정보 저장
     mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com',function(err, db){
@@ -162,7 +192,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('give_point', async(data, callback) => {
-    const {data: {accessToken, classId, studentId, point}} = data;
+    const {data: {accessToken, studentId, point, classId}} = data;
 
     // api로 db 업데이트
     axios.post('http://3.35.141.211:3000/api/point',{
@@ -179,16 +209,14 @@ io.on('connection', (socket) => {
       if(err) throw err;
 
       var collection = db.db(DB).collection(COLLECTION);
-      var filter = {
-        classId: classId, 
-        studentArr: {
-          id: studentId
-        }
-      };
+      var filter = {classId: classId};
 
       collection.findOne(filter, function(err, res){
         if(err) throw err;
-        var studentSocket = io.sockets.connected[res.socketId];
+        console.log(res);
+        var student = res['studentArr'].find(elem => elem.id === studentId);
+        var studentSocket = io.sockets.sockets.get(student.socketId);
+
         // 학생 소켓에 알리기
         if(studentSocket){
           studentSocket.emit('get_point', {
@@ -207,7 +235,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('give_badge', async(data, callback) => {
-    const {data: {accessToken, studentId, point, subject, description}} = data;
+    const {data: {accessToken, studentId, point, subject, description, classId}} = data;
 
     // api로 db 업데이트
     axios.post('http://3.35.141.211:3000/api/badge',{
@@ -226,16 +254,13 @@ io.on('connection', (socket) => {
       if(err) throw err;
 
       var collection = db.db(DB).collection(COLLECTION);
-      var filter = {
-        classId: classId, 
-        studentArr: {
-          id: studentId
-        }
-      };
+      var filter = {classId: classId};
 
       collection.findOne(filter, function(err, res){
         if(err) throw err;
-        var studentSocket = io.sockets.connected[res.socketId];
+        var student = res['studentArr'].find(elem => elem.id === studentId);
+        var studentSocket = io.sockets.sockets.get(student.socketId);
+        
         if(studentSocket){
           studentSocket.emit('get_badge', {
             'data':{
@@ -263,6 +288,7 @@ io.on('connection', (socket) => {
       const updateDoc = {
         $push:{
           quizArr:{
+            id: new Date().getTime(),
             problem: problem,
             isOX: true,
             choices: ['O','X'],
@@ -286,7 +312,7 @@ io.on('connection', (socket) => {
           }
         });
     
-        setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, answer);
+        setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin, classId);
         db.close();
       });
     });
@@ -304,6 +330,7 @@ io.on('connection', (socket) => {
       const updateDoc = {
         $push:{
           quizArr:{
+            id: new Date().getTime(),
             problem: problem,
             isOX: false,
             choices: multiChoices,
@@ -311,7 +338,6 @@ io.on('connection', (socket) => {
             timeLimit: {min: timeLimitMin, sec:timeLimitSec},
             point: point,
             badge: {subject:badgeSubject, description: badgeDescription},
-            
           }
         }
       };
@@ -329,7 +355,7 @@ io.on('connection', (socket) => {
           }
         });
     
-        setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, parseInt(answer));
+        setTimeout(quizTimeoutFunction, 1000*parseInt(timeLimitSec)+1000*60*parseInt(timeLimitMin), classId);
         db.close();
       });
     });
@@ -344,20 +370,41 @@ io.on('connection', (socket) => {
     mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
-      const filter = {classId: classId};
-      const updateDoc = {
-        $push:{
-          "quizArr.$.end.studentAnswerArr":{
-            id: studentId,
-            answer: answer
-          }
-        }
+
+      var filter = {
+        classId: classId,
       };
-      const options = {upsert: true};
-      collection.updateOne(filter, updateDoc, options, function(err, res){
+      var projection = {
+        _id: 1,
+        quizArr: 1
+      }
+      collection.findOne(filter, projection, function(err, res){
         if(err) throw err;
-        db.close();
-      });
+        // console.log(res);
+        var elemId = res._id;
+        var quizId = res.quizArr[res.quizArr.length-1].id;
+        var isOX = res.quizArr[res.quizArr.length-1].isOX;
+
+        filter = {_id:ObjectId(elemId)};
+        var updateDoc = {
+          $push:{
+            studentAnswerArr:{
+              quizId: quizId,
+              id: studentId,
+              answer: isOX? answer : answer+""
+            }
+          }
+        };
+
+        var options = {upsert: true};
+
+        collection.updateOne(filter, updateDoc, options, function(err, res){
+          if(err) throw err;
+          // console.log(res);
+          db.close();
+        });
+
+      })
     });
 
   });
@@ -367,13 +414,6 @@ io.on('connection', (socket) => {
   })
 });
 
-app.get('/', (req, res) => {
-  res.send('socket server is running');
-})
-
-server.listen(PORT, () => {
-  console.log('listening on http://localhost:4040/');
-})
 
 // // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
