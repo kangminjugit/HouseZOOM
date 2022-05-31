@@ -9,7 +9,7 @@ const axios = require('axios');
 // const { type } = require('os');
 // const internal = require('stream');
 // const http = require('./api');
-const {addUser} = require('./user');
+// const {addUser} = require('./user');
 
 // var path = require('path');
 // var cookieParser = require('cookie-parser');
@@ -17,9 +17,7 @@ const {addUser} = require('./user');
 
 // var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
-const {MongoClient} = require('mongodb');
-
-const mongoClient = new MongoClient('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com');
+const mongoClient = require('mongodb').MongoClient;
 const PORT = 4040;
 const DB = 'housezoom';
 const COLLECTION = 'room';
@@ -110,12 +108,10 @@ io.on('connection', (socket) => {
     classes[classId].push(studentId);
     
     // MongoDB에 학생 정보 저장
-    try{
-      await mongoClient.connect();
-      const collection = mongoClient.db(DB).collection(COLLECTION);
-
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection(COLLECTION);
       const filter = {classId: classId};
-      const options = {upsert: true};
       const updateDoc = {
         $push:{
           studentArr:{
@@ -125,11 +121,12 @@ io.on('connection', (socket) => {
           }
         }
       };
-      const result = await collection.updateOne(filter, updateDoc, options);
-      console.log(result);
-    }finally{
-      await mongoClient.close();
-    }
+      collection.updateOne(filter, updateDoc, function(err, res){
+        if(err) throw err;
+        console.log('1 document updated');
+        db.close();
+      });
+    });
   });
 
   socket.on('teacher_join_class',async(data, callback) => {
@@ -137,7 +134,7 @@ io.on('connection', (socket) => {
 
     // 속한 반에 해당하는 room에 join
     socket.join(classId);
-    console.log(teacherId+' joined');
+    console.log(teacherId, classId, name, socket.id);
 
     // 접속한 선생님 정보 저장
     teacherSockets[teacherId] = socket;
@@ -147,25 +144,24 @@ io.on('connection', (socket) => {
     classes[classId].push(teacherId);
 
     // MongoDB에 선생님 정보 저장
-    try{
-      await mongoClient.connect();
-      const collection = mongoClient.db(DB).collection(COLLECTION);
-
-      const filter = {classId: classId};
-      const options = {upsert: true};
-      const updateDoc = {
-        $set:{
-          'teacher.id':teacherID,
-          'teacher.name':name,
-          'teacher.accessToken':accessToken,
-          'teacher.socket':socket
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com',function(err, db){
+      if(err) throw err;
+      var collection = db.db(DB).collection(COLLECTION);
+      var filter = {classId: classId};
+      var updateDoc = {
+        '$set':{
+          'teacher.id': teacherId,
+          'teacher.name': name,
+          'teacher.socketId':socket.id
         }
       };
-      const result = await collection.updateOne(filter, updateDoc, options);
-      console.log(result);
-    }finally{
-      await mongoClient.close();
-    }
+      var options = {upsert: true};
+      collection.updateOne(filter, updateDoc,options, function(err, res){
+        if(err) throw err;
+        console.log(res);
+        db.close();
+      });
+    });
   });
 
   socket.on('give_point', async(data, callback) => {
