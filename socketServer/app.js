@@ -22,72 +22,83 @@ const PORT = 4040;
 const DB = 'housezoom';
 const COLLECTION = 'room';
 
-var studentSockets = {};
-var teacherSockets = {};
-
-var quiz = {};
-var studentAnswers = {};
-
-var classes = {};
-
 function quizTimeoutFunction(socket, classId, answer){
-  var studentAnswerArr = [];
-  classes[classId].forEach(studentId => {
-    if(studentSockets[studentId]){
-      studentSockets[studentId].emit('quiz_timeout', {
-        'data':{
+  // MongoDB에서 접속한 학생들 찾고 퀴즈 결과 알리기
+  mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    if(err) throw err;
+
+    var collection = db.db(DB).collection(COLLECTION);
+    var query = {classId: classId};
+    var projection = {
+      teacher: 1,
+      studentArr: 1,
+      quizArr: {'$slice': -1}
+    };
+    collection.find(query,projection, function(err, res){
+      if(err) throw err;
+
+      var teacher = res.teacher;
+      var teacherSocket = io.sockets.connected[teacher.socketId]; 
+      var studentArr = res.studentArr;
+      var quiz = res.quizArr[0];
+
+      studentArr.forEach(student => {
+        var studentId = student.id;
+        var studentSocket = io.sockets.connected[student.socketId];
+        var studentAnswer = quiz.studentAnswer.find(elem => elem.id === student.id);
+
+        if(studentSocket){
+          studentSocket.emit('quiz_timeout', {
+            'data':{
+              'message': '퀴즈가 종료되었습니다!',
+              'is_ox': quiz.isOX,
+              'answer': quiz.answer,
+              'studentAnswer': studentAnswer,
+              'is_correct': answer === studentAnswer ? true: false,
+            }
+          });
+    
+          if(answer === studentAnswer){
+            // api로 db 업데이트
+            axios.post('http://3.35.141.211:3000/api/point',{
+              'is_ox': quiz.isOX,
+              'studentId' : studentId,
+              'point':quiz.point       
+            },{
+              headers: { Authorization: `Bearer ${teacher.accessToken}` },
+            } );
+    
+            // api로 db 업데이트
+            axios.post('http://3.35.141.211:3000/api/badge',{
+              'studentId' : studentId,
+              'point':quiz.point  ,
+              'subject': quiz.badge.subject,
+              'description': quiz.badge.description
+            },{
+              headers: { Authorization: `Bearer ${teacher.accessToken}` },
+            } ).then(res => {
+              
+            });
+          }
+        }
+      }) 
+
+      teacherSocket.emit('quiz_timeout', {
+        'data': {
           'message': '퀴즈가 종료되었습니다!',
-          'is_ox': quiz[classId]['is_ox'],
-          'answer': answer,
-          'studentAnswer': studentAnswers[studentId],
-          'is_correct': answer === studentAnswers[studentId] ? true: false,
+          'is_ox':quiz.isOX,
+          'problem':quiz.problem,
+          'choices': quiz.choices,
+          'studentAnswerArr': studentArr
         }
       });
+    });
 
-      if(answer === studentAnswers[studentId]){
-        // api로 db 업데이트
-        axios.post('http://3.35.141.211:3000/api/point',{
-          'is_ox': quiz[classId]['is_ox'],
-          'studentId' : studentId,
-          'point':quiz[classId]['point']        
-        },{
-          headers: { Authorization: `Bearer ${quiz[classId]['accessToken']}` },
-        } );
-
-        // api로 db 업데이트
-        axios.post('http://3.35.141.211:3000/api/badge',{
-          'studentId' : studentId,
-          'point':quiz[classId]['point']  ,
-          'subject': quiz[classId]['badgeSubject'],
-          'description': quiz[classId]['badgeDescription']
-        },{
-          headers: { Authorization: `Bearer ${quiz[classId]['accessToken']}` },
-        } ).then(res => {
-          
-        });
-      }
-
-      studentAnswerArr.push({
-        'studentId': studentId,
-        'studentAnswer': studentAnswers[studentId] 
-      });
-    }
-  });
-
-  teacherSockets[quiz[classId]['teacherId']].emit('quiz_timeout', {
-    'data': {
-      'message': '퀴즈가 종료되었습니다!',
-      'is_ox':quiz[classId]['is_ox'],
-      'problem':quiz[classId]['problem'],
-      'choices': quiz[classId]['is_ox']? ['O','X'] : quiz[classId]['multiChoices'] ,
-      'studentAnswerArr': studentAnswerArr
-    }
+    db.close();
   });
 }
 
 io.on('connection', (socket) => {
-  var newQuizId = 0;
-
   socket.on('choose_class', async(data, callback) => {
     const {data: {accessToken, classId}} = data;
     socket.join(classId);
@@ -98,21 +109,14 @@ io.on('connection', (socket) => {
 
     // 속한 반에 해당하는 room에 join
     socket.join(classId);
-    console.log(studentId+' joined');
-
-    // 접속한 학생 저장
-    studentSockets[studentId] = socket;
-    if(!classes[classId]){
-      classes[classId] = [];
-    }
-    classes[classId].push(studentId);
+    console.log(studentId, classId, name);
     
     // MongoDB에 학생 정보 저장
     mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
-      const filter = {classId: classId};
-      const updateDoc = {
+      var filter = {classId: classId};
+      var updateDoc = {
         $push:{
           studentArr:{
             id: studentId,
@@ -121,27 +125,20 @@ io.on('connection', (socket) => {
           }
         }
       };
-      collection.updateOne(filter, updateDoc, function(err, res){
+      var options = {upsert: true};
+      collection.updateOne(filter, updateDoc,options, function(err, res){
         if(err) throw err;
-        console.log('1 document updated');
         db.close();
       });
     });
   });
 
   socket.on('teacher_join_class',async(data, callback) => {
-    const {data: {teacherId, classId, name}} = data;
+    const {data: {teacherId,accessToken, classId, name}} = data;
 
     // 속한 반에 해당하는 room에 join
     socket.join(classId);
     console.log(teacherId, classId, name, socket.id);
-
-    // 접속한 선생님 정보 저장
-    teacherSockets[teacherId] = socket;
-    if(!classes[classId]){
-      classes[classId] = [];
-    }
-    classes[classId].push(teacherId);
 
     // MongoDB에 선생님 정보 저장
     mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com',function(err, db){
@@ -152,13 +149,13 @@ io.on('connection', (socket) => {
         '$set':{
           'teacher.id': teacherId,
           'teacher.name': name,
-          'teacher.socketId':socket.id
+          'teacher.socketId':socket.id,
+          'teacher.accessToken':accessToken
         }
       };
       var options = {upsert: true};
       collection.updateOne(filter, updateDoc,options, function(err, res){
         if(err) throw err;
-        console.log(res);
         db.close();
       });
     });
@@ -177,18 +174,36 @@ io.on('connection', (socket) => {
       
     });
 
-    // 학생 소켓 찾기
-    var studentSocket = studentSockets[studentId];
+    // 학생 소켓 찾고 그 소켓으로 point 정보 보내기
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
 
-    // 학생 소켓에 알리기
-    if(studentSocket){
-      studentSocket.emit('get_point', {
-        'data':{
-          'studentId': studentId,
-          'point': point
+      var collection = db.db(DB).collection(COLLECTION);
+      var filter = {
+        classId: classId, 
+        studentArr: {
+          id: studentId
         }
-      });
-    }
+      };
+
+      collection.findOne(filter, function(err, res){
+        if(err) throw err;
+        var studentSocket = io.sockets.connected[res.socketId];
+        // 학생 소켓에 알리기
+        if(studentSocket){
+          studentSocket.emit('get_point', {
+            'data':{
+              'studentId': studentId,
+              'point': point
+            }
+          });
+        }
+        db.close();      
+      })
+      
+    });
+
+
   })
 
   socket.on('give_badge', async(data, callback) => {
@@ -206,79 +221,145 @@ io.on('connection', (socket) => {
       
     });
 
-    // 학생 소켓 찾기
-    var studentSocket = studentSockets[studentId];
+    // 학생 소켓 찾고 소켓에 뱃지 정보 보내기
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
 
-    // 학생 소켓에 알리기
-    if(studentSocket){
-      studentSocket.emit('get_badge', {
-        'data':{
-          'studentId' : studentId,
-          'point':point,
-          'subject': subject,
-          'description': description
+      var collection = db.db(DB).collection(COLLECTION);
+      var filter = {
+        classId: classId, 
+        studentArr: {
+          id: studentId
         }
-      });
-    }
+      };
+
+      collection.findOne(filter, function(err, res){
+        if(err) throw err;
+        var studentSocket = io.sockets.connected[res.socketId];
+        if(studentSocket){
+          studentSocket.emit('get_badge', {
+            'data':{
+              'studentId' : studentId,
+              'point':point,
+              'subject': subject,
+              'description': description
+            }
+          });
+        }
+        db.close();    
+      })
+      
+    });
   })
 
   socket.on('give_ox_quiz', (data, callback) => {
     const {data: {classId,teacherId,accessToken, problem, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
 
-    quiz[classId] = {
-      'is_ox': true,
-      'problem': problem, 
-      'answer': answer,
-      'point': point ,
-      'teacherId':teacherId,
-      'accessToken':accessToken,
-      'badgeSubject':badgeSubject,
-      'badgeDescription':badgeDescription
-    };
+    // MongoDB에 퀴즈 정보 저장
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection(COLLECTION);
+      const filter = {classId: classId};
+      const updateDoc = {
+        $push:{
+          quizArr:{
+            problem: problem,
+            isOX: true,
+            choices: ['O','X'],
+            answer: answer,
+            timeLimit: {min: timeLimitMin, sec:timeLimitSec},
+            point: point,
+            badge: {subject:badgeSubject, description: badgeDescription},
+          }
+        }
+      };
+      const options = {upsert: true};
+      collection.updateOne(filter, updateDoc, options, function(err, res){
+        if(err) throw err;
 
-    socket.to(classId).emit('get_ox_quiz', {
-      'data':{
-        'problem': problem,
-        'point':point,
-        'timeLimitMin': timeLimitMin,
-        'timeLimitSec': timeLimitSec
-      }
+        socket.to(classId).emit('get_ox_quiz', {
+          'data':{
+            'problem': problem,
+            'point':point,
+            'timeLimitMin': timeLimitMin,
+            'timeLimitSec': timeLimitSec
+          }
+        });
+    
+        setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, answer);
+        db.close();
+      });
     });
-
-    setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, answer);
   })
 
 
   socket.on('give_choice_quiz', (data, callback) => {
     const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
-    quiz[classId] = {
-      'is_ox': false,
-      'problem': problem, 
-      'multiChoices':multiChoices,
-      'answer': parseInt(answer),
-      'point': point ,
-      'teacherId':teacherId,
-      'accessToken':accessToken,
-      'badgeSubject': badgeSubject,
-      'badgeDescription': badgeDescription
-    };
 
-    socket.to(classId).emit('get_choice_quiz', {
-      'data':{
-        'problem': problem,
-        'multiChoices':multiChoices,
-        'point':point,
-        'timeLimitMin': timeLimitMin,
-        'timeLimitSec': timeLimitSec
-      }
+    // MongoDB에 퀴즈 정보 저장
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection(COLLECTION);
+      const filter = {classId: classId};
+      const updateDoc = {
+        $push:{
+          quizArr:{
+            problem: problem,
+            isOX: false,
+            choices: multiChoices,
+            answer: answer,
+            timeLimit: {min: timeLimitMin, sec:timeLimitSec},
+            point: point,
+            badge: {subject:badgeSubject, description: badgeDescription},
+            
+          }
+        }
+      };
+      const options = {upsert: true};
+      collection.updateOne(filter, updateDoc, options, function(err, res){
+        if(err) throw err;
+  
+        socket.to(classId).emit('get_choice_quiz', {
+          'data':{
+            'problem': problem,
+            'multiChoices':multiChoices,
+            'point':point,
+            'timeLimitMin': timeLimitMin,
+            'timeLimitSec': timeLimitSec
+          }
+        });
+    
+        setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, parseInt(answer));
+        db.close();
+      });
     });
 
-    setTimeout(quizTimeoutFunction, 1000*timeLimitSec+1000*60*timeLimitMin,socket, classId, parseInt(answer));
+
   });
 
   socket.on('submit_quiz', (data, callback) => {
     const {data: {classId, studentId, answer}} = data;
-    studentAnswers[studentId] = answer;
+
+    // MongoDB에 학생 답 저장
+    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection(COLLECTION);
+      const filter = {classId: classId};
+      const updateDoc = {
+        $push:{
+          "quizArr.$.end.studentAnswerArr":{
+            id: studentId,
+            answer: answer
+          }
+        }
+      };
+      const options = {upsert: true};
+      collection.updateOne(filter, updateDoc, options, function(err, res){
+        if(err) throw err;
+        db.close();
+      });
+    });
+
   });
   
   socket.on('disconnect', () => {
