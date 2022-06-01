@@ -289,7 +289,7 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         from student left outer join (\
             select item.id as id, my_item.student_id as student_id, item.image as item_image, item.type as item_type\
             from item, my_item\
-            where item.id = my_item.item_id\
+            where item.id = my_item.item_id and my_item.is_cur = 1\
         ) as item\
         on student.id = item.student_id\
         where student.class_id = ?", [classId]);
