@@ -72,46 +72,53 @@ const quizTimeoutFunction = ( classId) => {
         // console.log(arr);
 
         var studentAnswerArr = res.studentAnswerArr;
-        studentArr.forEach(student => {
-          var studentId = student.id;
-          var studentSocket = io.sockets.sockets.get(student.socketId);
-          var studentAnswer = studentAnswerArr.find(elem => elem.id === student.id);
-  
-          if(studentSocket){
-            studentSocket.emit('quiz_timeout', {
-              'data':{
-                'message': '퀴즈가 종료되었습니다!',
-                'is_ox': quiz.isOX,
-                'answer': quiz.answer,
-                'studentAnswer': studentAnswer.answer,
-                'is_correct': quiz.answer === studentAnswer.answer? true: false,
-              }
-            });
-      
-            if(quiz.answer === studentAnswer){
-              // api로 db 업데이트
-              axios.post('http://3.35.141.211:3000/api/point',{
-                'is_ox': quiz.isOX,
-                'studentId' : studentId,
-                'point':quiz.point       
-              },{
-                headers: { Authorization: `Bearer ${teacher.accessToken}` },
-              } );
-      
-              // api로 db 업데이트
-              axios.post('http://3.35.141.211:3000/api/badge',{
-                'studentId' : studentId,
-                'point':quiz.point  ,
-                'subject': quiz.badge.subject,
-                'description': quiz.badge.description
-              },{
-                headers: { Authorization: `Bearer ${teacher.accessToken}` },
-              } ).then(res => {
-                
+        if(studentAnswerArr === undefined){
+          studentAnswerArr = [];
+        }
+
+        if(studentAnswerArr.length > 0){
+          studentArr.forEach(student => {
+            var studentId = student.id;
+            var studentSocket = io.sockets.sockets.get(student.socketId);
+            var studentAnswer = studentAnswerArr.find(elem => elem.id === student.id);
+    
+            if(studentSocket){
+              studentSocket.emit('quiz_timeout', {
+                'data':{
+                  'message': '퀴즈가 종료되었습니다!',
+                  'is_ox': quiz.isOX,
+                  'answer': quiz.answer,
+                  'studentAnswer': studentAnswer.answer,
+                  'is_correct': quiz.answer === studentAnswer.answer? true: false,
+                }
               });
+        
+              if(quiz.answer === studentAnswer){
+                // api로 db 업데이트
+                axios.post('http://3.35.141.211:3000/api/point',{
+                  'is_ox': quiz.isOX,
+                  'studentId' : studentId,
+                  'point':quiz.point       
+                },{
+                  headers: { Authorization: `Bearer ${teacher.accessToken}` },
+                } );
+        
+                // api로 db 업데이트
+                axios.post('http://3.35.141.211:3000/api/badge',{
+                  'studentId' : studentId,
+                  'point':quiz.point  ,
+                  'subject': quiz.badge.subject,
+                  'description': quiz.badge.description
+                },{
+                  headers: { Authorization: `Bearer ${teacher.accessToken}` },
+                } ).then(res => {
+                  
+                });
+              }
             }
-          }
-        });
+          });
+        }
+        
 
         teacherSocket.emit('quiz_timeout', {
           'data': {
