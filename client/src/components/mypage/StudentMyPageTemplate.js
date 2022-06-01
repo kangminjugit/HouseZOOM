@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import palette from '../../lib/styles/palette';
 import TimeTable from './TimeTable';
 import Character from '../student/char/Character';
+import client from '../../axiosConfig';
 
 // 화면 전체 style
 const MyPageTemplateBlock = styled.div`
@@ -86,18 +87,48 @@ const ThirdBox = styled.div`
   }
 `;
 
-const MyPageTemplate = ({ type }) => {
+const StudentMyPageTemplate = () => {
+  const [point, setPoint] = useState();
+  const [loading, setLoading] = useState(false);
+
+  // 토큰
+  const token = JSON.parse(localStorage.getItem('student_user'));
+  const accessClient = client.create({
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      accessClient
+        .get('/api/point')
+        .then(function (response) {
+          console.log(response);
+          setPoint(response.data.data.point);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <div>로딩중</div>;
+  }
+
   return (
     <MyPageTemplateBlock>
       <LeftBox>
-        <FirstBox>수업 들어가기</FirstBox>
-        {type === 'student' && (
-          <SecondBoxStudent>
-            나의 캐릭터
-            <Character />
-          </SecondBoxStudent>
-        )}
-        {type === 'teacher' && <SecondBoxTeacher />}
+        <FirstBox>현재 포인트 : {point}콩</FirstBox>
+        <SecondBoxStudent>
+          나의 캐릭터
+          <Character />
+        </SecondBoxStudent>
       </LeftBox>
       <ThirdBox>
         <div className="div">시간표</div>
@@ -107,4 +138,4 @@ const MyPageTemplate = ({ type }) => {
   );
 };
 
-export default MyPageTemplate;
+export default StudentMyPageTemplate;

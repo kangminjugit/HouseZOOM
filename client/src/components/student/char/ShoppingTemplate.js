@@ -124,7 +124,7 @@ const ShoppingTemplate = () => {
 
   return (
     <ShoppingTemplateBlock>
-      <HeaderBox>
+      <HeaderBox style={{ marginTop: '1rem' }}>
         <div>내 장바구니</div>
       </HeaderBox>
       {items.map((item, index) => (

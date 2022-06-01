@@ -5,7 +5,7 @@ import ClassSelect from '../../components/class/ClassSelect';
 const ClassGenerationPage = () => {
   return (
     <div>
-      <Header type="teacher" />
+      <Header type="landing" />
       <ClassSelect />
     </div>
   );

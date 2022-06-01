@@ -46,7 +46,7 @@ const Character = () => {
       <img
         style={{ position: 'absolute', zIndex: '1', top: '100px', left: '0px' }}
         alt="body"
-        src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1652194871637_avatar_body.png"
+        src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1653650799828_IMG_3787.PNG"
       />
       {myitems.map((item, index) => (
         <img

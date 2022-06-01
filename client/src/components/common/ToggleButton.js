@@ -6,17 +6,23 @@ const StyledButton = styled.button`
   width: 10px;
   height: 20px;
   border-radius: 10px;
-  outline: 1px ${palette.gray[3]};
-  ${(props) =>
-    props.indigo &&
-    css`
-      background: ${palette.indigo[2]};
-    `}
+  border: 2px solid ${palette.gray[7]};
+
   ${(props) =>
     props.fullWidth &&
     css`
       width: 100%;
       font-size: 12px;
+    `}
+
+  ${(props) =>
+    props.indigo &&
+    css`
+      background: ${palette.mint[3]};
+
+      &:hover {
+        background: ${palette.mint[0]};
+      }
     `}
 `;
 

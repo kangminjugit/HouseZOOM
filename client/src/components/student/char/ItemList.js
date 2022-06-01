@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components';
 import React, { useEffect, useState } from 'react';
 import palette from '../../../lib/styles/palette';
-import Button from '../../common/Button';
 
 const ItemBox = styled.div`
   flex-direction: row;

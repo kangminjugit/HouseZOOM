@@ -7,6 +7,13 @@ import { NativeSelect } from '@material-ui/core/index';
 import client from '../../axiosConfig';
 import styled, { css } from 'styled-components';
 import palette from '../../lib/styles/palette';
+import { useHistory } from 'react-router-dom';
+
+import { useDispatch, useSelector } from 'react-redux';
+import auth, { teacherLogin } from '../../modules/auth';
+import { setUser } from '../../modules/user';
+
+const years = [1, 2, 3, 4, 5, 6];
 
 const cities = [
   '강원도',
@@ -57,6 +64,7 @@ const InputBlock = styled.div`
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
   padding: 2rem;
   background: ${palette.gray[0]};
+  border: 4px solid ${palette.gray[7]};
   border-radius: 15px;
   width: 300px;
   flex-direction: column;
@@ -85,11 +93,13 @@ const StyledInput = styled.input`
 
 const StyledButton = styled.button`
   border: none;
-  border-radius: 4px;
+  // border-radius: 4px;
+  // border: 4px solid ${palette.gray[7]};
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: bold;
   padding: 0.25rem 1rem;
-  color: white;
+  color: black;
   outline: none;
   cursor: pointer;
 
@@ -110,14 +120,28 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.indigo[9]};
+      background: ${palette.mint[3]};
+
       &:hover {
-        background: ${palette.indigo[7]};
+        background: ${palette.mint[0]};
       }
     `}
 `;
 
 export default function NativeSelectDemo() {
+  const { form, auth, authError, user_token } = useSelector(
+    ({ auth, user }) => ({
+      form: auth.teacher_login,
+      auth: auth.auth,
+      authError: auth.authError,
+      user_token: user.user_token,
+    }),
+  );
+
+  const history = useHistory();
+  const dispatch = useDispatch();
+
+  const [token, setToken] = useState();
   const [city, setCity] = useState(null);
   const [className, setClassName] = useState(null);
   const [authCode, setAuthCode] = useState(null);
@@ -126,15 +150,6 @@ export default function NativeSelectDemo() {
   const [schoolList, setSchoolList] = useState();
   const [schoolNameList, setSchoolNameList] = useState();
   const [schoolName, setSchoolName] = useState();
-
-  // 토큰
-  const token = JSON.parse(localStorage.getItem('teacher_user'));
-  const accessClient = client.create({
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
 
   // event handler
   const handleChange_city = (e) => {
@@ -155,7 +170,7 @@ export default function NativeSelectDemo() {
   };
   const handleChange_year = (e) => {
     const { value } = e.target;
-    setYear(value);
+    setYear(parseInt(value));
   };
 
   // 학교 이름으로 학교 코드 알아내기
@@ -182,11 +197,14 @@ export default function NativeSelectDemo() {
         })
         .then(function (response) {
           console.log(response);
-          alert('반이 생성되었습니다.');
+          localStorage.clear();
+          console.log(response.data.data.class_id);
           localStorage.setItem(
             'classId',
             JSON.stringify(response.data.data.class_id),
           );
+          alert('반이 생성되었습니다.');
+          history.push('/teacherLogin');
         })
         .catch(function (error) {
           console.log(error);
@@ -204,6 +222,43 @@ export default function NativeSelectDemo() {
     }
     return school_names;
   };
+  // 처음 랜더링될때 로그인
+  useEffect(() => {
+    const id = localStorage.getItem('teacher_id');
+    const password = localStorage.getItem('teacher_password');
+    dispatch(teacherLogin({ id, password }));
+  }, [dispatch]);
+
+  // 로그인 성공
+  useEffect(() => {
+    if (auth) {
+      //console.log('로그인 성공');
+      //localStorage.setItem('classId', JSON.stringify(auth.data.classId[0]));
+      dispatch(setUser(auth.data.accessToken));
+    }
+  }, [auth, dispatch]);
+
+  //  로그인 성공하면 토큰 저장
+  useEffect(() => {
+    console.log(user_token);
+    if (user_token) {
+      try {
+        setToken(user_token);
+        //localStorage.setItem('teacher_user', JSON.stringify(user_token));
+      } catch (e) {
+        console.log('ERROR');
+      }
+    }
+  }, [user_token]);
+
+  // 토큰
+  //const token = JSON.parse(localStorage.getItem('teacher_user'));
+  const accessClient = client.create({
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   // 도시에 있는 학교 리스트 서버에서 가져오기
   useEffect(() => {
@@ -248,7 +303,7 @@ export default function NativeSelectDemo() {
               }}
             >
               {cities.map((city) => (
-                <option key={city} vaule={city}>
+                <option key={city} value={city}>
                   {city}
                 </option>
               ))}
@@ -270,7 +325,7 @@ export default function NativeSelectDemo() {
               }}
             >
               {schoolNameList.map((school, index) => (
-                <option key={index} vaule={school}>
+                <option key={index} value={school}>
                   {school}
                 </option>
               ))}
@@ -291,12 +346,35 @@ export default function NativeSelectDemo() {
           placeholder="인증코드"
           onChange={handleChange_auth}
         ></StyledInput>
-        <StyledInput
+        {/* <StyledInput
           autoComplete="year"
           name="year"
           placeholder="학년"
           onChange={handleChange_year}
-        ></StyledInput>
+        ></StyledInput> */}
+
+        <Box className="margin_top" sx={{ maxWidth: 300 }}>
+          <FormControl fullWidth>
+            <InputLabel variant="standard" htmlFor="uncontrolled-native">
+              학년
+            </InputLabel>
+            <NativeSelect
+              //defaultValue={'school'}
+              onChange={handleChange_year}
+              inputProps={{
+                name: 'year',
+                id: 'uncontrolled-native',
+              }}
+            >
+              {years.map((year, index) => (
+                <option key={index} value={year}>
+                  {year}
+                </option>
+              ))}
+            </NativeSelect>
+          </FormControl>
+        </Box>
+
         <StyledButton indigo fullWidth className="margin_top" onClick={onClick}>
           확인
         </StyledButton>

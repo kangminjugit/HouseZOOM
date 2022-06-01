@@ -46,9 +46,9 @@ const HeaderLink = ({ type }) => {
           <Link to="/teacher/ManageStudentPage" className="link">
             학생 관리
           </Link>
-          {/* <Link to="/teacherMyPage" className="link">
-            수업 관리
-          </Link> */}
+          <Link to="/teacher/TimeTablePage" className="link">
+            시간표 생성
+          </Link>
           <Link to="/teacherMyPage" className="link">
             우리반 페이지
           </Link>

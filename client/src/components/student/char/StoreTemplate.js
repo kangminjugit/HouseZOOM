@@ -3,9 +3,6 @@ import React, { useEffect, useState } from 'react';
 import palette from '../../../lib/styles/palette';
 import Item from './Item';
 import Button from '../../common/Button';
-
-// import axios from 'axios';
-//import ToggleButton from '../../common/ToggleButton';
 import client from '../../../axiosConfig';
 
 const null_arr = [''];
@@ -25,6 +22,7 @@ const StoreTemplateBlock = styled.div`
 
 const HeaderBox = styled.div`
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
+  margin-top: 1rem;
   padding: 2rem;
   width: 100%;
   height: 100px;
@@ -57,6 +55,7 @@ const StoreTemplate = () => {
   const [hairs, setHairs] = useState();
   const [tops, setTops] = useState();
   const [bottoms, setBottoms] = useState();
+  const [point, setPoint] = useState(0);
   // const [all, setAll] = useState();
 
   const make_item_dict = (arr1, arr2, arr3) => {
@@ -134,6 +133,7 @@ const StoreTemplate = () => {
         // setTops(response_top.data.data.items);
         // setBottoms(response_bottom.data.data.items);
         const url_all = '/api/item?type=*';
+        const url_point = '/api/point';
 
         accessClient
           .get(url_all)
@@ -144,6 +144,16 @@ const StoreTemplate = () => {
             console.log(hairs);
             console.log(tops);
             console.log(bottoms);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
+        accessClient
+          .get(url_point)
+          .then(function (response) {
+            console.log(response.data.data);
+            setPoint(response.data.data.point);
           })
           .catch(function (error) {
             console.log(error);
@@ -205,6 +215,7 @@ const StoreTemplate = () => {
     <StoreTemplateBlock>
       <HeaderBox>
         <div>캐릭터 상점</div>
+        <div>현재 포인트 : {point}콩</div>
         <Button indigo onClick={handleClick} to="/student/ShoppingPage">
           내 장바구니
         </Button>
