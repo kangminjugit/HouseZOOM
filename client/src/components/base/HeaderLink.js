@@ -27,7 +27,7 @@ const HeaderLink = ({ type }) => {
           <Link to="/student/StorePage" className="link">
             캐릭터 상점
           </Link>
-          <Link to="/studentMyPage" className="link">
+          <Link to="/ClassCharPage" className="link">
             우리반 페이지
           </Link>
           <Button indigo logout_student>
@@ -49,7 +49,7 @@ const HeaderLink = ({ type }) => {
           <Link to="/teacher/TimeTablePage" className="link">
             시간표 생성
           </Link>
-          <Link to="/teacherMyPage" className="link">
+          <Link to="/ClassCharPage" className="link">
             우리반 페이지
           </Link>
           <Button indigo logout_teacher>
