@@ -9,6 +9,7 @@ import { initializeAuth } from '../../modules/auth';
 import AuthForm from '../../components/auth/AuthForm';
 //import user, { check } from '../../modules/user';
 import { useHistory } from 'react-router-dom';
+import { teacher_register } from '../../lib/api/auth';
 
 const TeacherRegisterForm = () => {
   const [error, setError] = useState(null);
@@ -81,9 +82,16 @@ const TeacherRegisterForm = () => {
       console.log(auth);
       //setSuccess(true);
       alert('회원가입 성공');
+      const { id, name, password, passwordConfirm } = form;
+      console.log(id, password);
+      try {
+        localStorage.setItem('teacher_id', id);
+        localStorage.setItem('teacher_password', password);
+      } catch (err) {
+        console.log(err);
+      }
       dispatch(initializeAuth());
-      console.log(auth);
-      history.push('/teacherLogin');
+      history.push('/teacher/ClassGenerationPage');
     }
   }, [auth, authError, history, dispatch]);
 

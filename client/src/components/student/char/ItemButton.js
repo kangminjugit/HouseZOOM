@@ -7,6 +7,7 @@ import client from '../../../axiosConfig';
 const StyledButton = styled.button`
   width: 75px;
   height: 75px;
+  border: 3px solid ${palette.gray[7]};
   border-radius: 10px;
   .img {
     height: 100%;
@@ -18,7 +19,11 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.indigo[2]};
+      background: ${palette.mint[3]};
+
+      &:hover {
+        background: ${palette.mint[0]};
+      }
     `}
 `;
 

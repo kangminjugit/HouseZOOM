@@ -22,10 +22,11 @@ const LandingTemplateBlock = styled.div`
 const LandingPage = () => {
   const teacher_user = localStorage.getItem('teacher_user');
   const student_user = localStorage.getItem('student_user');
+  const classId = localStorage.getItem('classId');
 
   const history = useHistory();
 
-  if (teacher_user) {
+  if (teacher_user && classId) {
     history.push('/teacherMyPage');
   } else if (student_user) {
     history.push('/studentMyPage');

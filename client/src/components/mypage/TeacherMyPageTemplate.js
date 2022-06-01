@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-//import { Link } from 'react-router-dom';
 import palette from '../../lib/styles/palette';
 import TimeTable from './TimeTable';
-import Character from '../student/char/Character';
 
 // 화면 전체 style
 const MyPageTemplateBlock = styled.div`
@@ -86,18 +84,12 @@ const ThirdBox = styled.div`
   }
 `;
 
-const MyPageTemplate = ({ type }) => {
+const TeacherMyPageTemplate = () => {
   return (
     <MyPageTemplateBlock>
       <LeftBox>
-        <FirstBox>수업 들어가기</FirstBox>
-        {type === 'student' && (
-          <SecondBoxStudent>
-            나의 캐릭터
-            <Character />
-          </SecondBoxStudent>
-        )}
-        {type === 'teacher' && <SecondBoxTeacher />}
+        <FirstBox>수업들어가기</FirstBox>
+        <SecondBoxTeacher />
       </LeftBox>
       <ThirdBox>
         <div className="div">시간표</div>
@@ -107,4 +99,4 @@ const MyPageTemplate = ({ type }) => {
   );
 };
 
-export default MyPageTemplate;
+export default TeacherMyPageTemplate;

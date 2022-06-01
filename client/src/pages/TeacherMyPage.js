@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '../components/base/Header';
-import MyPageTemplate from '../components/mypage/MyPageTemplate';
+// import MyPageTemplate from '../components/mypage/MyPageTemplate';
+import TeacherMyPageTemplate from '../components/mypage/TeacherMyPageTemplate';
 
 const TeacherMyPage = () => {
   const teacher_user = localStorage.getItem('teacher_user');
@@ -14,7 +15,7 @@ const TeacherMyPage = () => {
   return (
     <>
       <Header type="teacher" />
-      <MyPageTemplate type="teacher" />
+      <TeacherMyPageTemplate />
     </>
   );
 };

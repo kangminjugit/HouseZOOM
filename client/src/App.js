@@ -15,6 +15,8 @@ import ManageStudentPage from './pages/teacher/ManageStudentPage';
 import StudentCharPage from './pages/student/StudentCharPage';
 import StudentStorePage from './pages/student/StudentStorePage';
 import StudentShoppingPage from './pages/student/StudentShoppingPage';
+import ClassCharPage from './pages/ClassCharPage';
+import TimeTable from './pages/teacher/TimeTable';
 
 const App = () => {
   return (
@@ -37,10 +39,8 @@ const App = () => {
       <Route component={StudentCharPage} path="/student/CharPage" />
       <Route component={StudentStorePage} path="/student/StorePage" />
       <Route component={StudentShoppingPage} path="/student/ShoppingPage" />
-
-      {/* <Route path="/@:username">
-        <Route index element={<StudentMyPage />} />
-      </Route> */}
+      <Route component={ClassCharPage} path="/ClassCharPage" />
+      <Route component={TimeTable} path="/teacher/TimeTablePage" />
     </>
   );
 };
