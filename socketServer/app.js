@@ -40,86 +40,63 @@ const quizTimeoutFunction = ( classId) => {
 
     var collection = db.db(DB).collection(COLLECTION);
     var query = {classId: classId};
-    var projection = {
-      _id: 1,
-      teacher: 1,
-      studentArr: 1,
-      quizArr: 1
-    };
-    collection.findOne(query,projection, async function(err, res){
+
+    collection.findOne(query,function(err, res){
       if(err) throw err;
+      var quiz = res.quizArr[res.quizArr.length-1];
+      var studentAnswerArr = [];
+      var teacherSocket = io.sockets.sockets.get(res.teacher.socketId);
 
-      var teacher = res['teacher'];
-      var teacherSocket = io.sockets.sockets.get(res['teacher']['socketId']);
-      var studentArr = res['studentArr'];
-      var quiz = res['quizArr'][res['quizArr'].length-1];
+      if(res.studentAnswerArr !== undefined){
+        res.studentAnswerArr.forEach(elem => {
+          if(elem.quizId === quiz.id){
+            studentAnswerArr.push(elem);
+          }
+        });
+      }
 
-      console.log(quiz);
+      console.log(studentAnswerArr);
 
-      // console.log(teacher, studentArr, quiz);
-
-      query = {classId: classId};
-
-      options = {
-        projection:{
-          studentAnswerArr: {$elemMatch: {quizId: quiz['id']}}
-        }
-      };
-
-      collection.findOne(query, options, function(err, res){
-       
-        console.log(res);
-        // console.log(arr);
-
-        var studentAnswerArr = res.studentAnswerArr;
-        if(studentAnswerArr === undefined){
-          studentAnswerArr = [];
-        }
-
-        if(studentAnswerArr.length > 0){
-          studentArr.forEach(student => {
-            var studentId = student.id;
-            var studentSocket = io.sockets.sockets.get(student.socketId);
-            var studentAnswer = studentAnswerArr.find(elem => elem.id === student.id);
-    
-            if(studentSocket){
-              studentSocket.emit('quiz_timeout', {
-                'data':{
-                  'message': '퀴즈가 종료되었습니다!',
-                  'is_ox': quiz.isOX,
-                  'answer': quiz.answer,
-                  'studentAnswer': studentAnswer.answer,
-                  'is_correct': quiz.answer === studentAnswer.answer? true: false,
-                }
-              });
+      studentAnswerArr.forEach(elem => {
+        var studentSocket = io.sockets.sockets.get(elem.socketId);
         
-              if(quiz.answer === studentAnswer){
-                // api로 db 업데이트
-                axios.post('http://3.35.141.211:3000/api/point',{
-                  'is_ox': quiz.isOX,
-                  'studentId' : studentId,
-                  'point':quiz.point       
-                },{
-                  headers: { Authorization: `Bearer ${teacher.accessToken}` },
-                } );
-        
-                // api로 db 업데이트
-                axios.post('http://3.35.141.211:3000/api/badge',{
-                  'studentId' : studentId,
-                  'point':quiz.point  ,
-                  'subject': quiz.badge.subject,
-                  'description': quiz.badge.description
-                },{
-                  headers: { Authorization: `Bearer ${teacher.accessToken}` },
-                } ).then(res => {
-                  
-                });
-              }
+        if(studentSocket){
+          studentSocket.emit('quiz_timeout', {
+            'data':{
+              'message': '퀴즈가 종료되었습니다!',
+              'is_ox': quiz.isOX,
+              'answer': quiz.answer,
+              'studentAnswer': elem.answer,
+              'is_correct': quiz.answer === elem.answer? true: false,
             }
           });
+    
+          if(quiz.answer === elem.answer){
+            // api로 db 업데이트
+            axios.post('http://3.35.141.211:3000/api/point',{
+              'is_ox': quiz.isOX,
+              'studentId' : elem.id,
+              'point':quiz.point       
+            },{
+              headers: { Authorization: `Bearer ${res.teacher.accessToken}` },
+            } );
+    
+            // api로 db 업데이트
+            axios.post('http://3.35.141.211:3000/api/badge',{
+              'studentId' : elem.id,
+              'point':quiz.point  ,
+              'subject': quiz.badge.subject,
+              'description': quiz.badge.description
+            },{
+              headers: { Authorization: `Bearer ${res.teacher.accessToken}` },
+            } ).then(res => {
+              
+            });
+          }
         }
-        
+      });
 
+      if(teacherSocket){
         teacherSocket.emit('quiz_timeout', {
           'data': {
             'message': '퀴즈가 종료되었습니다!',
@@ -129,11 +106,16 @@ const quizTimeoutFunction = ( classId) => {
             'studentAnswerArr': studentAnswerArr
           }
         });
+      }
+
 
         db.close();
-      });
     });
+
   });
+
+
+  
 };
 
 io.on('connection', (socket) => {
@@ -398,7 +380,8 @@ io.on('connection', (socket) => {
             studentAnswerArr:{
               quizId: quizId,
               id: studentId,
-              answer: isOX? answer : answer+""
+              answer: isOX? answer : answer+"",
+              socketId: socket.id
             }
           }
         };
