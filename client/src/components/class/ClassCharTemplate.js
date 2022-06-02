@@ -69,7 +69,7 @@ const ClassCharTemplate = () => {
 
   return (
     <ClassCharTemplateBlock>
-      <HeaderBox>우리반 캐릭터 페이지</HeaderBox>
+      <HeaderBox style={{ marginTop: '1rem' }}>우리반 캐릭터 페이지</HeaderBox>
       <CharacterBox>
         {students.map((student, index) => (
           <ClassCharList
