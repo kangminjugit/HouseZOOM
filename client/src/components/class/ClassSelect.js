@@ -13,9 +13,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import auth, { teacherLogin } from '../../modules/auth';
 import { setUser } from '../../modules/user';
 
-const years = [1, 2, 3, 4, 5, 6];
+const years = ['학년', 1, 2, 3, 4, 5, 6];
 
 const cities = [
+  '도시',
   '강원도',
   '경기도',
   '경상남도',
@@ -141,7 +142,16 @@ export default function NativeSelectDemo() {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const [token, setToken] = useState();
+  // 토큰
+  const token = JSON.parse(localStorage.getItem('teacher_user'));
+  const accessClient = client.create({
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  //const [token, setToken] = useState();
   const [city, setCity] = useState(null);
   const [className, setClassName] = useState(null);
   const [authCode, setAuthCode] = useState(null);
@@ -151,6 +161,7 @@ export default function NativeSelectDemo() {
   const [schoolNameList, setSchoolNameList] = useState();
   const [schoolName, setSchoolName] = useState();
 
+  //const [classId, setClassId] = useState(0);
   // event handler
   const handleChange_city = (e) => {
     const { value } = e.target;
@@ -197,14 +208,14 @@ export default function NativeSelectDemo() {
         })
         .then(function (response) {
           console.log(response);
-          localStorage.clear();
-          console.log(response.data.data.class_id);
+          // localStorage.removeItem('teacher_id');
+          // localStorage.removeItem('teacher_password');
           localStorage.setItem(
             'classId',
             JSON.stringify(response.data.data.class_id),
           );
           alert('반이 생성되었습니다.');
-          history.push('/teacherLogin');
+          history.push('/teacherMyPage');
         })
         .catch(function (error) {
           console.log(error);
@@ -217,48 +228,40 @@ export default function NativeSelectDemo() {
   // 도시에 있는 학교 이름 리스트 만들기
   const create_school_name = (arr) => {
     const school_names = [];
+    school_names.push('학교 이름');
     for (let i = 0; i < arr.length; i++) {
       school_names.push(arr[i]['school_name']);
     }
     return school_names;
   };
-  // 처음 랜더링될때 로그인
-  useEffect(() => {
-    const id = localStorage.getItem('teacher_id');
-    const password = localStorage.getItem('teacher_password');
-    dispatch(teacherLogin({ id, password }));
-  }, [dispatch]);
+  // // 처음 랜더링될때 로그인
+  // useEffect(() => {
+  //   const id = localStorage.getItem('teacher_id');
+  //   const password = localStorage.getItem('teacher_password');
+  //   dispatch(teacherLogin({ id, password }));
+  // }, [dispatch]);
 
-  // 로그인 성공
-  useEffect(() => {
-    if (auth) {
-      //console.log('로그인 성공');
-      //localStorage.setItem('classId', JSON.stringify(auth.data.classId[0]));
-      dispatch(setUser(auth.data.accessToken));
-    }
-  }, [auth, dispatch]);
+  // // 로그인 성공
+  // useEffect(() => {
+  //   if (auth) {
+  //     //console.log('로그인 성공');
+  //     //localStorage.setItem('classId', JSON.stringify(auth.data.classId[0]));
+  //     dispatch(setUser(auth.data.accessToken));
+  //   }
+  // }, [auth, dispatch]);
 
-  //  로그인 성공하면 토큰 저장
-  useEffect(() => {
-    console.log(user_token);
-    if (user_token) {
-      try {
-        setToken(user_token);
-        //localStorage.setItem('teacher_user', JSON.stringify(user_token));
-      } catch (e) {
-        console.log('ERROR');
-      }
-    }
-  }, [user_token]);
-
-  // 토큰
-  //const token = JSON.parse(localStorage.getItem('teacher_user'));
-  const accessClient = client.create({
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // //  로그인 성공하면 토큰 저장
+  // useEffect(() => {
+  //   console.log(user_token);
+  //   if (user_token) {
+  //     try {
+  //       setToken(user_token);
+  //       //localStorage.setItem('teacher_user', JSON.stringify(user_token));
+  //     } catch (e) {
+  //       console.log('ERROR');
+  //     }
+  //   }
+  // }, [user_token]);
 
   // 도시에 있는 학교 리스트 서버에서 가져오기
   useEffect(() => {

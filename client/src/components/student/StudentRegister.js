@@ -11,6 +11,7 @@ import client from '../../axiosConfig';
 import { useHistory } from 'react-router-dom';
 
 const cities = [
+  '도시',
   '강원도',
   '경기도',
   '경상남도',
@@ -30,6 +31,7 @@ const cities = [
   '충청북도',
 ];
 const null_arr = ['도시를 입력하세요'];
+const null_arr_class = ['반 찾기를 클릭하세요'];
 
 const AuthFormBlock = styled.div`
   h2 {
@@ -218,7 +220,7 @@ const StudentRegister = () => {
   }, [city]);
 
   if (!schoolNameList) return setSchoolNameList(null_arr);
-  if (!classList) return setclassList(null_arr);
+  if (!classList) return setclassList(null_arr_class);
 
   const handleClick_ok = (e) => {
     setClassId(find_class_id(classArrayList, className));
@@ -298,7 +300,7 @@ const StudentRegister = () => {
         value={passwordConfirm}
       />
 
-      <Box sx={{ maxWidth: 300 }}>
+      <Box sx={{ maxWidth: 450 }}>
         <FormControl fullWidth>
           <InputLabel variant="standard" htmlFor="uncontrolled-native">
             City
@@ -320,7 +322,7 @@ const StudentRegister = () => {
         </FormControl>
       </Box>
 
-      <Box className="margin_top" sx={{ maxWidth: 300 }}>
+      <Box className="margin_top" sx={{ maxWidth: 450 }}>
         <FormControl fullWidth>
           <InputLabel variant="standard" htmlFor="uncontrolled-native">
             School
@@ -343,20 +345,26 @@ const StudentRegister = () => {
       </Box>
 
       <StyledInput
+        style={{ marginTop: '1rem' }}
         autoComplete="grade"
         name="grade"
-        placeholder="학년"
+        placeholder="학년(숫자만 입력하세요.)"
         onChange={handleChange_grade}
         value={grade}
       />
-      <Button indigo fullWidth onClick={handleClick_class_id}>
+      <Button
+        style={{ marginTop: '1rem', marginBottom: '1rem' }}
+        indigo
+        fullWidth
+        onClick={handleClick_class_id}
+      >
         반 찾기
       </Button>
 
-      <Box className="margin_top" sx={{ maxWidth: 300 }}>
+      <Box className="margin_top" sx={{ maxWidth: 450 }}>
         <FormControl fullWidth>
           <InputLabel variant="standard" htmlFor="uncontrolled-native">
-            School
+            Class
           </InputLabel>
           <NativeSelect
             //defaultValue={'school'}

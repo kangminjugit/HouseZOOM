@@ -5,8 +5,6 @@ import LoginPage from './pages/LoginPage';
 import StudentRegisterPage from './pages/StudentRegisterPage';
 import TeacherRegisterPage from './pages/TeacherRegisterPage';
 import StudentMyPage from './pages/StudentMyPage';
-import StudentLandingPage from './pages/StudentLandingPage';
-import TeacherLandingPage from './pages/TeacherLandingPage';
 import TeacherLoginPage from './pages/TeacherLoginPage';
 import StudentLoginPage from './pages/StudentLoginPage';
 import TeacherMyPage from './pages/TeacherMyPage';
@@ -22,8 +20,6 @@ const App = () => {
   return (
     <>
       <Route component={LandingPage} path="/" exact />
-      {/* <Route component={StudentLandingPage} path="/studentLanding" />
-      <Route component={TeacherLandingPage} path="/teacherLanding" /> */}
       <Route component={LoginPage} path="/login" />
       <Route component={StudentLoginPage} path="/studentLogin" />
       <Route component={TeacherLoginPage} path="/teacherLogin" />
