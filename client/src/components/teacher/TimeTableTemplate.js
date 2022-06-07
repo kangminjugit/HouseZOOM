@@ -4,7 +4,10 @@ import { InputLabel } from '@material-ui/core/index';
 import { FormControl } from '@material-ui/core/index';
 import { NativeSelect } from '@material-ui/core/index';
 import styled, { css } from 'styled-components';
-import { Input } from '../../../node_modules/@material-ui/core/index';
+import {
+  Input,
+  TableSortLabel,
+} from '../../../node_modules/@material-ui/core/index';
 import palette from '../../lib/styles/palette';
 import { useHistory } from 'react-router-dom';
 import Button from '../common/Button';
@@ -106,9 +109,12 @@ const StyledButton = styled.button`
     `}
 `;
 const tables = [];
-const days = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
-const periods = [1, 2, 3, 4, 5, 6, 7];
+const null_table = { day: '', period: null, subject: '', zoom_url: '' };
+const days = ['요일', 'MON', 'TUE', 'WED', 'THU', 'FRI'];
+const periods = ['교시', 1, 2, 3, 4, 5, 6, 7];
+
 const TimeTableTemplate = () => {
+  const history = useHistory();
   const [table, setTable] = useState({
     day: '',
     period: 0,
@@ -148,12 +154,23 @@ const TimeTableTemplate = () => {
     setZoom(value);
   };
   const handleClick = (e) => {
-    setTable({ day: day, period: period, subject: subject, zoom_url: zoom });
+    setTable({
+      day: day,
+      period: period,
+      subject: subject,
+      zoom_url: zoom,
+    });
+    console.log(day, period, subject, zoom);
+
+    // tables.push(table);
+    // setTable(null_table);
   };
+
   // 서버에 보내기
   const handleClick_submit = (e) => {
     console.log('제출');
     console.log(tables);
+
     accessClient
       .post('/api/time-table', {
         classId: parseInt(localStorage.getItem('classId')),
@@ -161,7 +178,12 @@ const TimeTableTemplate = () => {
       })
       .then(function (response) {
         console.log(response);
+        tables.pop();
+        for (let i = 0; i < tables.length; i++) {
+          tables.pop();
+        }
         alert('시간표 생성 완료!');
+        history.push('/teacherMyPage');
       })
       .catch(function (error) {
         console.log(error);
@@ -178,11 +200,17 @@ const TimeTableTemplate = () => {
       }
     };
     fetchData();
+    setDay('');
+    setPeriod(null);
+    setSubject('');
+    setZoom('');
     console.log(tables);
   }, [table]);
+
   if (loading) {
     return <div>로딩중</div>;
   }
+
   return (
     <TimeTableBlock>
       <InputBlock style={{ marginTop: '1rem' }}>
