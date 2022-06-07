@@ -91,7 +91,7 @@ const TeacherRegisterForm = () => {
         console.log(err);
       }
       dispatch(initializeAuth());
-      history.push('/teacher/ClassGenerationPage');
+      history.push('/teacherLogin');
     }
   }, [auth, authError, history, dispatch]);
 
