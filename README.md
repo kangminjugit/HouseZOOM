@@ -17,7 +17,7 @@
 집ZOOM은 클라이언트 프로그램과 웹사이트로 구성되어있습니다.  
 또한, 클라이언트 프로그램은 ZOOM과 같은 원격 회의 시스템과 같이 사용할 수 있습니다.  
 클라이언트 프로그램 github 주소 : https://github.com/kangminjugit/HouseZOOMClient
-집ZOOM 사용자 매뉴얼 : [집ZOOM 사용 매뉴얼](./집ZOOM 사용 매뉴얼)
+집ZOOM 사용자 매뉴얼 : [집ZOOM 사용 매뉴얼](HouseZOOM/집ZOOM 사용 매뉴얼.pdf)
 
 #### 선생님/학생용 클라이언트 프로그램 
 1. 졸음 방지 기능  
