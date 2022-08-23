@@ -106,7 +106,7 @@ router.post('/teacher', async (req, res, next) => {
             "code": 200,
             "data": {
                 "accessToken": accessToken,
-                "refreshToken": refreshToken,
+//                 "refreshToken": refreshToken,
                 "classId" : rows.map(elem => elem.class_id),
                 'name':name
             },
@@ -206,7 +206,7 @@ router.post('/teacher', async (req, res, next) => {
             "code": 200,
             "data": {
                 "accessToken": accessToken,
-                "refreshToken": refreshToken,
+//                 "refreshToken": refreshToken,
                 "classId": class_id,
                 'name':name
             },
