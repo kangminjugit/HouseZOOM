@@ -89,9 +89,9 @@ router.post('/teacher', async (req, res, next) => {
             id:id,
             name: rows[0].name
         });
-        const refreshToken = jwtUtil.refresh();
+        // const refreshToken = jwtUtil.refresh();
 
-        await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+        // await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         [rows, fields] = await connection.query('select class_id from class_teacher where teacher_id = ?', [
             id
@@ -192,9 +192,9 @@ router.post('/teacher', async (req, res, next) => {
             id:id,
             name: rows[0].name
         });
-        const refreshToken = jwtUtil.refresh();
+        // const refreshToken = jwtUtil.refresh();
 
-        [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+        // [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res
