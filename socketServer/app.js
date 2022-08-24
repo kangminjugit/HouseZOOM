@@ -79,7 +79,7 @@ const quizTimeoutFunction = ( classId) => {
           
                 if(quiz.answer === studentAnswer.answer){
                   // api로 db 업데이트
-                  axios.post('http://3.35.141.211:3000/api/point',{
+                  axios.post('http://13.125.141.137:3000/api/point',{
                     'is_ox': quiz.isOX,
                     'studentId' : studentAnswer.id,
                     'point':quiz.point       
@@ -88,7 +88,7 @@ const quizTimeoutFunction = ( classId) => {
                   } );
           
                   // api로 db 업데이트
-                  axios.post('http://3.35.141.211:3000/api/badge',{
+                  axios.post('http://13.125.141.137:3000/api/badge',{
                     'studentId' : elem.id,
                     'point':quiz.point  ,
                     'subject': quiz.badge.subject,
@@ -185,7 +185,7 @@ io.on('connection', (socket) => {
     socket.join(classId);
 
     // MongoDB에 선생님 정보 저장
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com',function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com',function(err, db){
       if(err) throw err;
       var collection = db.db(DB).collection(COLLECTION);
       var filter = {classId: classId};
@@ -209,7 +209,7 @@ io.on('connection', (socket) => {
     const {data: {accessToken, studentId, point, classId}} = data;
 
     // api로 db 업데이트
-    axios.post('http://3.35.141.211:3000/api/point',{
+    axios.post('http://13.125.141.137:3000/api/point',{
       'studentId' : studentId,
       'point':point        
     },{
@@ -219,7 +219,7 @@ io.on('connection', (socket) => {
     });
 
     // 학생 소켓 찾고 그 소켓으로 point 정보 보내기
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
 
       var collection = db.db(DB).collection(COLLECTION);
@@ -256,7 +256,7 @@ io.on('connection', (socket) => {
     const {data: {accessToken, studentId, point, subject, description, classId}} = data;
 
     // api로 db 업데이트
-    axios.post('http://3.35.141.211:3000/api/badge',{
+    axios.post('http://13.125.141.137:3000/api/badge',{
       'studentId' : studentId,
       'point':point,
       'subject': subject,
@@ -268,7 +268,7 @@ io.on('connection', (socket) => {
     });
 
     // 학생 소켓 찾고 소켓에 뱃지 정보 보내기
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
 
       var collection = db.db(DB).collection(COLLECTION);
@@ -299,7 +299,7 @@ io.on('connection', (socket) => {
     const {data: {classId,teacherId,accessToken, problem, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
 
     // MongoDB에 퀴즈 정보 저장
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
       const filter = {classId: classId};
@@ -341,7 +341,7 @@ io.on('connection', (socket) => {
     const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
 
     // MongoDB에 퀴즈 정보 저장
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
       const filter = {classId: classId};
@@ -385,7 +385,7 @@ io.on('connection', (socket) => {
     const {data: {classId, studentId, answer}} = data;
 
     // MongoDB에 학생 답 저장
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
 
