@@ -35,7 +35,7 @@ server.listen(PORT, () => {
 
 const quizTimeoutFunction = ( classId) => {
   // MongoDB에서 접속한 학생들 찾고 퀴즈 결과 알리기
-  mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+  mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
     if(err) throw err;
 
     var collection = db.db(DB).collection(COLLECTION);
@@ -151,7 +151,7 @@ io.on('connection', (socket) => {
     socket.join(classId);
     
     // MongoDB에 학생 정보 저장
-    mongoClient.connect('mongodb://ec2-3-38-116-33.ap-northeast-2.compute.amazonaws.com', function(err, db){
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
       const collection = db.db(DB).collection(COLLECTION);
       var filter = {classId: classId};
@@ -339,7 +339,7 @@ io.on('connection', (socket) => {
 
   socket.on('give_choice_quiz', (data, callback) => {
     const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
-
+    
     // MongoDB에 퀴즈 정보 저장
     mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
       if(err) throw err;
@@ -377,8 +377,6 @@ io.on('connection', (socket) => {
         db.close();
       });
     });
-
-
   });
 
   socket.on('submit_quiz', (data, callback) => {
