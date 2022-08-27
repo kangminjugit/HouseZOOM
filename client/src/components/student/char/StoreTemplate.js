@@ -121,25 +121,12 @@ const StoreTemplate = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // const url_hair = '/api/item?type=hair';
-        // const url_top = '/api/item?type=top';
-        // const url_bottom = '/api/item?type=bottom';
-
-        // const response_hair = await axios.get(url_hair);
-        // const response_top = await axios.get(url_top);
-        // const response_bottom = await axios.get(url_bottom);
-
-        // setHairs(response_hair.data.data.items);
-        // setTops(response_top.data.data.items);
-        // setBottoms(response_bottom.data.data.items);
         const url_all = '/api/item?type=*';
         const url_point = '/api/point';
 
         accessClient
           .get(url_all)
           .then(function (response) {
-            console.log(response.data.data.items);
-            //setAll(response.data.data.items);
             divide_type(response.data.data.items);
             console.log(hairs);
             console.log(tops);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { initializeForm, changeField, teacherLogin } from '../../modules/auth';
 import AuthForm from '../../components/auth/AuthForm';
+import LoginAuthForm from '../../components/auth/LoginAuthForm';
 import { setUser } from '../../modules/user';
 import { useHistory } from 'react-router-dom';
 
@@ -82,13 +83,20 @@ const TeacherLoginForm = () => {
   }, [history, user_token]);
 
   return (
-    <AuthForm
-      type="login"
+    <LoginAuthForm
+      type="선생님 로그인"
       form={form}
       onChange={onChange}
       onSubmit={onSubmit}
       error={error}
     />
+    // <AuthForm
+    //   type="teacher_login"
+    //   form={form}
+    //   onChange={onChange}
+    //   onSubmit={onSubmit}
+    //   error={error}
+    // />
   );
 };
 

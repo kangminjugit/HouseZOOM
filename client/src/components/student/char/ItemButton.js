@@ -5,9 +5,10 @@ import palette from '../../../lib/styles/palette';
 import client from '../../../axiosConfig';
 
 const StyledButton = styled.button`
-  width: 75px;
-  height: 75px;
-  border: 3px solid ${palette.gray[7]};
+  width: 80px;
+  height: 80px;
+  outline: none;
+  border: 2px solid ${palette.gray[7]};
   border-radius: 10px;
   .img {
     height: 100%;
@@ -19,10 +20,10 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.mint[3]};
+      background: ${palette.mint[4]};
 
       &:hover {
-        background: ${palette.mint[0]};
+        background: ${palette.mint[2]};
       }
     `}
 `;

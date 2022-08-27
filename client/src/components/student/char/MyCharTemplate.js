@@ -37,6 +37,7 @@ const CharBox = styled.div`
   flex-direction: column;
   align-items: center;
   outline: solid 1px ${palette.gray[3]};
+
   .img {
     height: 100%;
     width: 100%;
@@ -115,62 +116,29 @@ const MyCharTemplate = () => {
     setBottoms(type_bottom);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      //const url_hair = '/api/avatar/my-item?type=hair';
-      //const url_top = '/api/avatar/my-item?type=top';
-      //const url_bottom = '/api/avatar/my-item?type=bottom';
-      const url_all = '/api/avatar/my-item?type=*';
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true);
 
-      accessClient
-        .get(url_all)
-        .then(function (response) {
-          console.log(response.data.data.items);
-          //setAll(response.data.data.items);
-          divide_type(response.data.data.items);
-          console.log(hairs);
-          console.log(tops);
-          console.log(bottoms);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+  //     const url_all = '/api/avatar/my-item?type=*';
 
-      // accessClient
-      //   .get(url_hair)
-      //   .then(function (response) {
-      //     console.log(response.data.data.items);
-      //     setHairs(response.data.data.items);
-      //   })
-      //   .catch(function (error) {
-      //     console.log(error);
-      //   });
+  //     accessClient
+  //       .get(url_all)
+  //       .then(function (response) {
+  //         console.log(response.data.data.items);
+  //         divide_type(response.data.data.items);
+  //         console.log(hairs);
+  //         console.log(tops);
+  //         console.log(bottoms);
+  //       })
+  //       .catch(function (error) {
+  //         console.log(error);
+  //       });
 
-      // accessClient
-      //   .get(url_top)
-      //   .then(function (response) {
-      //     console.log(response.data.data.items);
-      //     setTops(response.data.data.items);
-      //   })
-      //   .catch(function (error) {
-      //     console.log(error);
-      //   });
-
-      // accessClient
-      //   .get(url_bottom)
-      //   .then(function (response) {
-      //     console.log(response.data.data.items);
-      //     setBottoms(response.data.data.items);
-      //   })
-      //   .catch(function (error) {
-      //     console.log(error);
-      //   });
-
-      setLoading(false);
-    };
-    fetchData();
-  }, []);
+  //     setLoading(false);
+  //   };
+  //   fetchData();
+  // }, []);
 
   if (loading) {
     return <div>로딩중</div>;
@@ -188,44 +156,45 @@ const MyCharTemplate = () => {
     <MyCharTemplateBlock>
       <CharBox>
         {/* <img className="img" alt="character" src="/puang_img/puang_gibon.png" /> */}
-        <Character />
+        {/* <Character /> */}
       </CharBox>
       <ItemBox>
         <SubItemBox>
           <div className="headline">헤어</div>
           {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027698618_IMG_3755.PNG" /> */}
-          {hairs.map((hair, index) => (
+
+          {/* {hairs.map((hair, index) => (
             <ItemButton
               key={index}
               url={hair.image}
               item_id={hair.id}
               item_toggle={hair.isUsed}
             />
-          ))}
+          ))} */}
         </SubItemBox>
         <SubItemBox>
           <div className="headline">상의</div>
           {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027893201_IMG_3756.PNG" /> */}
-          {tops.map((top, index) => (
+          {/* {tops.map((top, index) => (
             <ItemButton
               key={index}
               url={top.image}
               item_id={top.id}
               item_toggle={top.isUsed}
             />
-          ))}
+          ))} */}
         </SubItemBox>
         <SubItemBox>
           <div className="headline">하의</div>
           {/* <ItemButton url="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651028135275_IMG_3758.PNG" /> */}
-          {bottoms.map((bottom, index) => (
+          {/* {bottoms.map((bottom, index) => (
             <ItemButton
               key={index}
               url={bottom.image}
               item_id={bottom.id}
               item_toggle={bottom.isUsed}
             />
-          ))}
+          ))} */}
         </SubItemBox>
         <Button onClick={handleClick} fullWidth indigo to="/studentMyPage">
           장착하기

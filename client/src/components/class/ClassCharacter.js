@@ -10,13 +10,12 @@ const ClassCharacter = ({ items }) => {
     const fetchData = async () => {
       setLoading(true);
       setMyitems(items);
-      console.log(myitems);
       setLoading(false);
     };
     fetchData();
   }, []);
 
-  if (!myitems) return setMyitems(['']);
+  if (!myitems) return;
 
   return (
     <div>
@@ -24,32 +23,17 @@ const ClassCharacter = ({ items }) => {
         style={{
           position: 'absolute',
           zIndex: '1',
-          top: '10px',
-          left: '0px',
-          height: '170px',
+          height: '12rem',
         }}
         alt="body"
         src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1653650799828_IMG_3787.PNG"
       />
-      {/* <img
-        style={{
-          position: 'absolute',
-          zIndex: '2',
-          top: '10px',
-          left: '0px',
-          height: '170px',
-        }}
-        alt="hair"
-        src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027698618_IMG_3755.PNG"
-      /> */}
       {myitems.map((item, index) => (
         <img
           style={{
             position: 'absolute',
             zIndex: '2',
-            top: '10px',
-            left: '0px',
-            height: '170px',
+            height: '12rem',
           }}
           key={index}
           alt={item.item_type}

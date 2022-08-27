@@ -1,16 +1,17 @@
 import styled from 'styled-components';
 import palette from '../../lib/styles/palette';
+import LandingHeader from '../base/LandingHeader';
 
 // 화면 전체 style
+
 const AuthTemplateBlock = styled.div`
   position: absolute;
   left: 0;
-  //top: 0;
-  //bottom: 0;
   right: 0;
   width: 100%;
-  height: 100%;
+  height: 90%;
   //background: ${palette.gray[0]};
+  font-family: 'Pretendard Regular';
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -19,14 +20,10 @@ const AuthTemplateBlock = styled.div`
 
 // White Box
 const WhiteBox = styled.div`
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
-  font-family: nanum;
+  /* box-shadow: 0 0 8px rgba(0, 0, 0, 0.025); */
   font-weight: bold;
-  border: 4px solid ${palette.gray[7]};
   padding: 2rem;
-  //width: 360px;
-  width: 500px;
-  background: ${palette.gray[0]};
+  width: 30rem;
   border-radius: 15px;
 `;
 

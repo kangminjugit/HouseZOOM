@@ -9,18 +9,27 @@ const StyledButton = styled.button`
   border: none;
   // border-radius: 4px;
   // border: 4px solid ${palette.gray[7]};
-  border-radius: 10px;
+  border-radius: 0.25rem;
   font-size: 1rem;
   font-weight: bold;
   padding: 0.25rem 1rem;
-  color: black;
+  color: ${palette.gray[8]};
   outline: none;
   cursor: pointer;
 
-  background: ${palette.gray[9]};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: inherit;
+  &:hover {
+    color: ${palette.mint[0]};
+  }
+
+  /* background: ${palette.gray[9]};
   &:hover {
     background: ${palette.gray[7]};
-  }
+  } */
 
   ${(props) =>
     props.fullWidth &&
@@ -34,10 +43,11 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.mint[3]};
+      background: ${palette.mint[2]};
 
       &:hover {
-        background: ${palette.mint[0]};
+        background: ${palette.mint[3]};
+        color: ${palette.gray[8]};
       }
     `}
 `;

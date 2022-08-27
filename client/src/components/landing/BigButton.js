@@ -8,20 +8,22 @@ const StyledButton = styled.button`
   align-items: center;
   justify-content: center;
 
-  //border: none;
-  border: 4px solid ${palette.gray[7]};
+  border: none;
+  // border: 4px solid ${palette.gray[7]};
   border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(51, 51, 51, 0.15);
 
-  font-family: nanum;
-  font-size: 1.5rem;
-  font-weight: bold;
-  height: 15rem;
+  font-family: 'Pretendard Bold';
+  font-size: 1.2rem;
+  /* font-weight: bold; */
+
   width: 15rem;
+  height: 15rem;
   margin: 1rem;
   padding: 0.25rem 1rem;
 
   color: black;
-  //outline: none;
+  // outline: none;
   //outline: solid 2px ${palette.gray[7]};
   cursor: pointer;
 

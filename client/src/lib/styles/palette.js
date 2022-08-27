@@ -34,6 +34,7 @@ const palette = {
     '#ffffff',
   ],
   zipzoom: ['#FE5D7D', '#5DD0B3', '#fe8aa2'],
+  background: ['#f7f7f7', '#FAFAFA'],
 };
 
 export default palette;

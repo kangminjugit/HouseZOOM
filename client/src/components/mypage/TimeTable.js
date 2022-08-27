@@ -102,9 +102,8 @@ const TimeTable = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        //const response = await axios.get('/api/time-table?classId=23');
-        const url =
-          '/api/time-table?classId=' + localStorage.getItem('classId');
+        const classId = localStorage.getItem('classId');
+        const url = '/api/time-table?classId=' + classId;
         const response = await client.get(url);
         setTime_table(create_row(response.data.data.time_table));
       } catch (e) {

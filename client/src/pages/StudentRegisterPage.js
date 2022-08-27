@@ -1,12 +1,12 @@
 import React from 'react';
 import StudentRegister from '../components/student/StudentRegister';
+import LandingHeader from '../components/base/LandingHeader';
 import AuthTemplate from '../components/auth/AuthTemplate';
-import Header from '../components/base/Header';
 
 const StudentRegisterPage = () => {
   return (
     <div>
-      <Header type="studentRegister" />
+      <LandingHeader type="student_register" />
       <AuthTemplate>
         <StudentRegister />
       </AuthTemplate>

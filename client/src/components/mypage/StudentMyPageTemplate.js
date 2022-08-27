@@ -2,89 +2,71 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 //import { Link } from 'react-router-dom';
 import palette from '../../lib/styles/palette';
-import TimeTable from './TimeTable';
 import Character from '../student/char/Character';
 import client from '../../axiosConfig';
+import TimeTableNew from './TimeTable_new';
 
 // 화면 전체 style
 const MyPageTemplateBlock = styled.div`
-  position: flex;
-  left: 10px;
-  right: 10px;
-  top: 10px;
+  position: absolute;
   width: 100%;
-  height: 100%;
+  height: 90%;
+
   display: flex;
   flex-direction: row;
-  //justify-content: center;
   align-items: center;
+  justify-content: center;
 `;
-
-const LeftBox = styled.div`
-  padding: 4rem;
-  flex-direction: column;
-`;
-
-const FirstBox = styled.div`
-  margin: 2rem;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
+const LeftBlock = styled.div`
   width: 320px;
+  height: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+`;
+const TopBlock = styled.div`
+  width: 100%;
   height: 150px;
-  background: ${palette.gray[0]};
-  border-radius: 10px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.5rem;
-  line-height: 150px;
-  outline: solid 1px ${palette.gray[3]};
-`;
+  border-radius: 0.25rem;
+  background-color: ${palette.background[1]};
+  box-shadow: 0px 0px 10px rgba(51, 51, 51, 0.1);
 
-const SecondBoxStudent = styled.div`
-  position: relative;
-  margin: 2rem;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
-  padding: 2rem;
-  width: 320px;
-  height: 450px;
-  background: ${palette.gray[0]};
-  font-weight: bold;
-  font-size: 1.5rem;
-  border-radius: 10px;
+  display: flex;
   flex-direction: column;
-  outline: solid 1px ${palette.gray[3]};
-  .img {
-    height: 100%;
-    width: 100%;
-    object-fit: contain;
-  }
+  align-items: center;
+  justify-content: space-between;
 `;
 
-const SecondBoxTeacher = styled.div`
-  margin: 2rem;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
-  padding: 2rem;
-  width: 320px;
+const BottomBlock = styled.div`
+  width: 100%;
   height: 450px;
-  //background: ${palette.gray[0]};
-  font-weight: bold;
-  font-size: 1.5rem;
-  border-radius: 10px;
-  //outline: solid 1px ${palette.gray[3]};
+  border-radius: 0.25rem;
+  background-color: ${palette.background[1]};
+  box-shadow: 0px 0px 4px rgba(51, 51, 51, 0.1);
 `;
 
-const ThirdBox = styled.div`
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
-  padding: 2rem;
+const RightBlock = styled.div`
+  margin-inline-start: 5rem;
   width: 800px;
-  height: 630px;
-  background: ${palette.gray[0]};
-  font-weight: bold;
-  font-size: 1.5rem;
-  border-radius: 10px;
-  outline: solid 1px ${palette.gray[3]};
-  .div {
-    padding: 1rem;
-  }
+  height: 650px;
+  border-radius: 0.25rem;
+  background-color: ${palette.background[1]};
+  box-shadow: 0px 0px 10px rgba(51, 51, 51, 0.1);
+`;
+
+const TitleBlock = styled.div`
+  font-family: 'Pretendard Bold';
+  font-size: 1.25rem;
+  text-align: center;
+  // 정렬
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 `;
 
 const StudentMyPageTemplate = () => {
@@ -123,17 +105,74 @@ const StudentMyPageTemplate = () => {
 
   return (
     <MyPageTemplateBlock>
-      <LeftBox>
-        <FirstBox>현재 포인트 : {point}콩</FirstBox>
-        <SecondBoxStudent>
-          나의 캐릭터
-          <Character />
-        </SecondBoxStudent>
-      </LeftBox>
-      <ThirdBox>
-        <div className="div">시간표</div>
-        <TimeTable />
-      </ThirdBox>
+      <LeftBlock>
+        <TopBlock>
+          <TitleBlock>
+            현재 포인트
+            <img
+              className="edamame"
+              alt="edamame"
+              src="/icon/edamame.png"
+              style={{ position: 'relative', height: '1.5rem' }}
+            />
+          </TitleBlock>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: 'Pretendard ExtraBold',
+                fontSize: '1.4rem',
+                color: palette.mint[0],
+              }}
+            >
+              {point}&nbsp;
+            </span>
+            콩
+          </div>
+        </TopBlock>
+        <BottomBlock>
+          <TitleBlock>
+            나의 캐릭터&nbsp;
+            <img
+              className="character"
+              alt="character"
+              src="/icon/character.png"
+              style={{ position: 'relative', height: '1.5rem' }}
+            />
+          </TitleBlock>
+          <div style={{ position: 'relative' }}>
+            <Character />
+          </div>
+        </BottomBlock>
+      </LeftBlock>
+      <RightBlock>
+        <TitleBlock>
+          시간표&nbsp;
+          <img
+            className="timetable"
+            alt="timetable"
+            src="/icon/calendar.png"
+            style={{ position: 'relative', height: '1.5rem' }}
+          />
+        </TitleBlock>
+        <div
+          style={{
+            display: 'flex',
+            marginTop: '2rem',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <TimeTableNew />
+        </div>
+      </RightBlock>
     </MyPageTemplateBlock>
   );
 };

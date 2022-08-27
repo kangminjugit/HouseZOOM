@@ -1,12 +1,12 @@
 import React from 'react';
-import Header from '../../components/base/Header';
-import StoreTemplate from '../../components/student/char/StoreTemplate';
+import StudentHeader from '../../components/base/StudentHeader';
+import StoreNew from '../../components/student/char/StoreNew';
 
 const StudentStorePage = () => {
   return (
     <>
-      <Header type="student" />
-      <StoreTemplate />
+      <StudentHeader type="캐릭터 상점" />
+      <StoreNew />
     </>
   );
 };

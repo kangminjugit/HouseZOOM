@@ -32,7 +32,65 @@ code {
     monospace;
 }
 
+/* 나눔 스퀘어 */
 @font-face {
   font-family: 'nanum';
   src: url('./fonts/NanumSquareRoundEB.ttf');
+}
+
+/* Pretendard Light */
+@font-face {
+  font-family: 'Pretendard Light';
+  src: url('./fonts/Pretendard/web/woff2/Pretendard-Light.woff2')
+      format('woff2'),
+    url('./fonts/Pretendard/web/woff/Pretendard-Light.woff') format('woff'),
+    url('./fonts/Pretendard/public/static/Pretendard-Light.otf')
+      format('opentype'),
+    url('./fonts/Pretendard/public/ios/Pretendard-Light.ttf') format('truetype');
+}
+
+/* Pretendard Regular */
+@font-face {
+  font-family: 'Pretendard Regular';
+  src: url('./fonts/Pretendard/web/woff2/Pretendard-Regular.woff2')
+      format('woff2'),
+    url('./fonts/Pretendard/web/woff/Pretendard-Regular.woff') format('woff'),
+    url('./fonts/Pretendard/public/static/Pretendard-Regular.otf')
+      format('opentype'),
+    url('./fonts/Pretendard/public/ios/Pretendard-Regular.ttf')
+      format('truetype');
+}
+
+/* Pretendard Medium */
+@font-face {
+  font-family: 'Pretendard Medium';
+  src: url('./fonts/Pretendard/web/woff2/Pretendard-Medium.woff2')
+      format('woff2'),
+    url('./fonts/Pretendard/web/woff/Pretendard-Medium.woff') format('woff'),
+    url('./fonts/Pretendard/public/static/Pretendard-Medium.otf')
+      format('opentype'),
+    url('./fonts/Pretendard/public/ios/Pretendard-Medium.ttf')
+      format('truetype');
+}
+
+/* Pretendard Bold */
+@font-face {
+  font-family: 'Pretendard Bold';
+  src: url('./fonts/Pretendard/web/woff2/Pretendard-Bold.woff2') format('woff2'),
+    url('./fonts/Pretendard/web/woff/Pretendard-Bold.woff') format('woff'),
+    url('./fonts/Pretendard/public/static/Pretendard-Bold.otf')
+      format('opentype'),
+    url('./fonts/Pretendard/public/ios/Pretendard-Bold.ttf') format('truetype');
+}
+
+/* Pretendard ExtraBold */
+@font-face {
+  font-family: 'Pretendard ExtraBold';
+  src: url('./fonts/Pretendard/web/woff2/Pretendard-ExtraBold.woff2')
+      format('woff2'),
+    url('./fonts/Pretendard/web/woff/Pretendard-ExtraBold.woff') format('woff'),
+    url('./fonts/Pretendard/public/static/Pretendard-ExtraBold.otf')
+      format('opentype'),
+    url('./fonts/Pretendard/public/ios/Pretendard-ExtraBold.ttf')
+      format('truetype');
 }
