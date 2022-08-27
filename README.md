@@ -70,4 +70,4 @@
 
 
 [Reference]
-image: Flaticon.com
+icons: Flaticon.com
