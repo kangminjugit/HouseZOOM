@@ -1,12 +1,11 @@
 import styled, { css } from 'styled-components';
 import React, { useEffect, useState } from 'react';
-// import axios from 'axios';
 import client from '../../../axiosConfig';
 
 const null_arr = [''];
 
 const Character = () => {
-  const [myitems, setMyitems] = useState(null);
+  const [myitems, setMyitems] = useState();
   const [loading, setLoading] = useState(null);
 
   //토큰
@@ -21,7 +20,7 @@ const Character = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const url = 'http://3.35.141.211:3000/api/avatar/cur-item?';
+      const url = '/api/avatar/cur-item?';
       accessClient
         .get(url)
         .then(function (response) {
@@ -44,7 +43,11 @@ const Character = () => {
   return (
     <div>
       <img
-        style={{ position: 'absolute', zIndex: '1', top: '100px', left: '0px' }}
+        style={{
+          position: 'absolute',
+          zIndex: '1',
+          top: '1.5rem',
+        }}
         alt="body"
         src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1653650799828_IMG_3787.PNG"
       />
@@ -53,19 +56,13 @@ const Character = () => {
           style={{
             position: 'absolute',
             zIndex: '2',
-            top: '100px',
-            left: '0px',
+            top: '1.5rem',
           }}
           key={index}
           alt={item.type}
           src={item.image}
         />
       ))}
-      {/* <img
-        style={{ position: 'absolute', zIndex: '2', top: '100px', left: '0px' }}
-        alt="hair"
-        src="https://housezoombucket.s3.ap-northeast-2.amazonaws.com/1651027698618_IMG_3755.PNG"
-      /> */}
     </div>
   );
 };

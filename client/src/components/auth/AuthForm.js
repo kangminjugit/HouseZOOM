@@ -4,6 +4,8 @@ import palette from '../../lib/styles/palette';
 import Button from '../common/Button';
 
 const textMap = {
+  student_login: '학생 로그인',
+  teacher_login: '선생님 로그인',
   login: '로그인',
   student_register: '학생 회원가입',
   teacher_register: '선생님 회원가입',
@@ -20,25 +22,29 @@ const AuthFormBlock = styled.div`
   h2 {
     margin: 0;
     color: ${palette.gray[8]};
-    margin-bottom: 1rem;
+    font-family: 'Pretendard Bold';
+    font-size: 1.6rem;
+
+    margin-bottom: 2rem;
     text-align: center;
     font-weight: bold;
   }
 `;
 // input styling
 const StyledInput = styled.input`
-  font-size: 1rem;
-  border: none;
-  border-bottom: 1px solid ${palette.gray[5]};
-  border-radius: 4px;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  outline: none;
+  height: 3rem;
   width: 100%;
 
+  border: none;
+  outline: none;
+  border-bottom: 1px solid ${palette.mint[4]};
+  border-radius: 4px;
+
+  font-size: 1rem;
+  padding-inline-start: 1rem;
+
   &:focus {
-    color: $oc-teal-7;
-    border-bottom: 1px solid ${palette.gray[7]};
+    border-bottom: 1px solid ${palette.mint[2]};
   }
 
   & + & {
@@ -64,7 +70,7 @@ const AuthForm = ({ type, form, onChange, onSubmit, error }) => {
           onChange={onChange}
           value={form.id}
         />
-        {type !== 'login' && (
+        {type !== 'student_login ' && type !== 'teacher_login' && (
           <StyledInput
             autoComplete="name"
             name="name"
@@ -81,7 +87,7 @@ const AuthForm = ({ type, form, onChange, onSubmit, error }) => {
           onChange={onChange}
           value={form.password}
         />
-        {type !== 'login' && (
+        {type !== 'student_login ' && type !== 'teacher_login' && (
           <StyledInput
             autoComplete="new-password"
             name="passwordConfirm"

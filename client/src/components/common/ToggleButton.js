@@ -5,8 +5,9 @@ import palette from '../../lib/styles/palette';
 const StyledButton = styled.button`
   width: 10px;
   height: 20px;
-  border-radius: 10px;
-  border: 2px solid ${palette.gray[7]};
+  border-radius: 4px;
+  outline: none;
+  border: 1px solid ${palette.gray[7]};
 
   ${(props) =>
     props.fullWidth &&
@@ -18,10 +19,10 @@ const StyledButton = styled.button`
   ${(props) =>
     props.indigo &&
     css`
-      background: ${palette.mint[3]};
+      background: ${palette.mint[4]};
 
       &:hover {
-        background: ${palette.mint[0]};
+        background: ${palette.mint[3]};
       }
     `}
 `;

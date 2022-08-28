@@ -16,10 +16,15 @@ import StudentShoppingPage from './pages/student/StudentShoppingPage';
 import ClassCharPage from './pages/ClassCharPage';
 import TimeTable from './pages/teacher/TimeTable';
 
+import LicensePage from './pages/LicensePage';
+import GlobalStyle from './lib/styles/GlobalStyles';
+
 const App = () => {
   return (
     <>
+      <GlobalStyle />
       <Route component={LandingPage} path="/" exact />
+      <Route component={LicensePage} path="/license" />
       <Route component={LoginPage} path="/login" />
       <Route component={StudentLoginPage} path="/studentLogin" />
       <Route component={TeacherLoginPage} path="/teacherLogin" />

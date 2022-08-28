@@ -1,12 +1,12 @@
 import React from 'react';
 import AuthTemplate from '../components/auth/AuthTemplate';
-import Header from '../components/base/Header';
+import LandingHeader from '../components/base/LandingHeader';
 import TeacherLoginForm from '../containers/auth/TeacherLoginForm';
 
 const TeacherLoginPage = () => {
   return (
     <div>
-      <Header type="teacherLogin" />
+      <LandingHeader type="teacher_login" />
       <AuthTemplate>
         <TeacherLoginForm />
       </AuthTemplate>

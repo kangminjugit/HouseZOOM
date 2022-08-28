@@ -1,12 +1,13 @@
 import React from 'react';
-import Header from '../../components/base/Header';
+import StudentHeader from '../../components/base/StudentHeader';
 import MyCharTemplate from '../../components/student/char/MyCharTemplate';
+import MyCharNew from '../../components/student/char/MyCharNew';
 
 const StudentCharPage = () => {
   return (
     <>
-      <Header type="student" />
-      <MyCharTemplate />
+      <StudentHeader type="나의 캐릭터" />
+      <MyCharNew />
     </>
   );
 };

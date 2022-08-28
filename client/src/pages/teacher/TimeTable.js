@@ -1,12 +1,13 @@
 import React from 'react';
-import Header from '../../components/base/Header';
+import TeacherHeader from '../../components/base/TeacherHeader';
 import TimeTableTemplate from '../../components/teacher/TimeTableTemplate';
+import PostTimeTable from '../../components/teacher/PostTimeTable';
 
 const TimeTable = () => {
   return (
     <>
-      <Header type="teacher" />
-      <TimeTableTemplate />
+      <TeacherHeader type="시간표 생성" />
+      <PostTimeTable />
     </>
   );
 };

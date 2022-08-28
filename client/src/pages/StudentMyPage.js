@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '../components/base/Header';
 // import MyPageTemplate from '../components/mypage/MyPageTemplate';
 import StudentMyPageTemplate from '../components/mypage/StudentMyPageTemplate';
+import StudentHeader from '../components/base/StudentHeader';
 
 const StudentMyPage = () => {
   const student_user = localStorage.getItem('student_user');
@@ -14,7 +14,7 @@ const StudentMyPage = () => {
   }
   return (
     <>
-      <Header type="student" />
+      <StudentHeader type="마이페이지" />
       <StudentMyPageTemplate />
     </>
   );

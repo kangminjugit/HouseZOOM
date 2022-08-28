@@ -4,6 +4,7 @@ import { initializeForm, changeField, studentLogin } from '../../modules/auth';
 import AuthForm from '../../components/auth/AuthForm';
 import { setUser } from '../../modules/user';
 import { useHistory } from 'react-router-dom';
+import LoginAuthForm from '../../components/auth/LoginAuthForm';
 
 const StudentLoginForm = () => {
   const [error, setError] = useState(null);
@@ -85,13 +86,20 @@ const StudentLoginForm = () => {
   }, [history, user_token]);
 
   return (
-    <AuthForm
-      type="login"
+    <LoginAuthForm
+      type="학생 로그인"
       form={form}
       onChange={onChange}
       onSubmit={onSubmit}
       error={error}
     />
+    // <AuthForm
+    //   type="student_login"
+    //   form={form}
+    //   onChange={onChange}
+    //   onSubmit={onSubmit}
+    //   error={error}
+    // />
   );
 };
 

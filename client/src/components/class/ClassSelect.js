@@ -1,90 +1,118 @@
 import React, { useEffect, useState } from 'react';
-import { Box } from '@material-ui/core/index';
-import { InputLabel } from '@material-ui/core/index';
-import { FormControl } from '@material-ui/core/index';
-import { NativeSelect } from '@material-ui/core/index';
-// import axios from 'axios';
 import client from '../../axiosConfig';
 import styled, { css } from 'styled-components';
 import palette from '../../lib/styles/palette';
 import { useHistory } from 'react-router-dom';
-
 import { useDispatch, useSelector } from 'react-redux';
-import auth, { teacherLogin } from '../../modules/auth';
-import { setUser } from '../../modules/user';
+import Select from 'react-select';
 
-const years = ['학년', 1, 2, 3, 4, 5, 6];
-
-const cities = [
-  '도시',
-  '강원도',
-  '경기도',
-  '경상남도',
-  '경상북도',
-  '광주광역시',
-  '대구광역시',
-  '대전광역시',
-  '부산광역시',
-  '서울특별시',
-  '세종특별자치시',
-  '울산광역시',
-  '인천광역시',
-  '전라남도',
-  '전라북도',
-  '제주특별자치도',
-  '충청남도',
-  '충청북도',
+const years = [
+  { label: 1, value: 1 },
+  { label: 2, value: 2 },
+  { label: 3, value: 3 },
+  { label: 4, value: 4 },
+  { label: 5, value: 5 },
+  { label: 6, value: 6 },
 ];
-const null_arr = ['도시를 입력하세요'];
+
+const cityList = [
+  { label: '강원도', value: 1 },
+  { label: '경기도', value: 2 },
+  { label: '경상남도', value: 3 },
+  { label: '경상북도', value: 4 },
+  { label: '광주광역시', value: 5 },
+  { label: '대구광역시', value: 6 },
+  { label: '대전광역시', value: 7 },
+  { label: '부산광역시', value: 8 },
+  { label: '서울특별시', value: 9 },
+  { label: '세종특별자치시', value: 10 },
+  { label: '울산광역시', value: 11 },
+  { label: '인천광역시', value: 12 },
+  { label: '전라남도', value: 13 },
+  { label: '전라북도', value: 14 },
+  { label: '제주특별자치도', value: 15 },
+  { label: '충청남도', value: 16 },
+  { label: '충청북도', value: 17 },
+];
+
+const customStyles = {
+  option: (provided, state) => ({
+    ...provided,
+    fontFamily: 'Pretendard Regular',
+    borderBottom: '1px solid #dee2e6',
+    backgroundColor: state.isFocused && palette.mint[3],
+    color: state.isSelected ? palette.gray[9] : palette.gray[6],
+  }),
+
+  control: (provide, state) => ({
+    ...provide,
+
+    fontFamily: 'Pretendard Regular',
+    width: state.selectProps.width,
+    height: '3rem',
+    // This line disable the blue border
+    border: state.isFocused ? 0 : 0,
+    boxShadow: state.isFocused ? 0 : 0,
+    '&:hover': {
+      border: state.isFocused ? 0 : 0,
+    },
+    borderBottom: state.isFocused ? '1px solid  #84dac2' : '1px solid #c4ede0',
+  }),
+
+  singleValue: (provided, state) => {
+    const opacity = state.isDisabled ? 0.5 : 1;
+    const transition = 'opacity 300ms';
+
+    return { ...provided, opacity, transition };
+  },
+};
 
 const ClassSelectBlock = styled.div`
   position: absolute;
-  left: 0;
-  //top: 0;
-  //bottom: 0;
-  right: 0;
   width: 100%;
-  height: 100%;
-  //background: ${palette.gray[0]};
+  height: 90%;
   display: flex;
-  //flex-direction: column;
   justify-content: center;
   align-items: center;
-  .pad {
-    padding: 1rem;
-  }
-  .margin {
-    margin: 1rem;
-  }
-  .margin_top {
-    margin-top: 1rem;
-  }
 `;
 
 const InputBlock = styled.div`
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.025);
   padding: 2rem;
   background: ${palette.gray[0]};
-  border: 4px solid ${palette.gray[7]};
-  border-radius: 15px;
-  width: 300px;
+  /* border: 4px solid ${palette.gray[7]};
+  border-radius: 15px; */
+  width: 30rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  h2 {
+    margin: 0;
+    color: ${palette.gray[8]};
+    font-family: 'Pretendard Bold';
+    font-size: 1.6rem;
+
+    margin-bottom: 2rem;
+    text-align: center;
+    font-weight: bold;
+  }
 `;
 
 const StyledInput = styled.input`
-  font-size: 1rem;
-  border: none;
-  border-bottom: 1px solid ${palette.gray[5]};
-  border-radius: 4px;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  outline: none;
+  height: 3rem;
   width: 100%;
+
+  border: none;
+  outline: none;
+  border-bottom: 1px solid ${palette.mint[4]};
+  border-radius: 4px;
+
+  font-size: 1rem;
+  padding-inline-start: 1rem;
+
   &:focus {
-    color: $oc-teal-7;
-    border-bottom: 1px solid ${palette.gray[7]};
+    border-bottom: 1px solid ${palette.mint[2]};
   }
 
   & + & {
@@ -158,18 +186,14 @@ export default function NativeSelectDemo() {
   const [year, setYear] = useState(0);
   const [loading, setLoading] = useState(false);
   const [schoolList, setSchoolList] = useState();
-  const [schoolNameList, setSchoolNameList] = useState();
-  const [schoolName, setSchoolName] = useState();
+  const [schoolCode, setSchoolCode] = useState();
 
-  //const [classId, setClassId] = useState(0);
   // event handler
-  const handleChange_city = (e) => {
-    const { value } = e.target;
-    setCity(value);
+  const handleChangeSelect_city = (e) => {
+    setCity(e.label);
   };
-  const handleChange_school = (e) => {
-    const { value } = e.target;
-    setSchoolName(value);
+  const handleChangeSelect_school = (e) => {
+    setSchoolCode(e.value);
   };
   const handleChange_input = (e) => {
     const { value } = e.target;
@@ -179,37 +203,27 @@ export default function NativeSelectDemo() {
     const { value } = e.target;
     setAuthCode(value);
   };
-  const handleChange_year = (e) => {
-    const { value } = e.target;
-    setYear(parseInt(value));
-  };
-
-  // 학교 이름으로 학교 코드 알아내기
-  const find_school_code = (arr, name) => {
-    for (let j = 0; j < arr.length; j++) {
-      if (arr[j]['school_name'] === name) {
-        return arr[j]['school_code'];
-      }
-    }
+  const handleChangeSelect_year = (e) => {
+    setYear(e.value);
   };
 
   // 학교 생성하기 버튼
   const onClick = (e) => {
-    console.log(schoolName);
-    if (schoolName) {
-      const code = find_school_code(schoolList, schoolName);
-      console.log(code, className, authCode, year);
+    console.log(schoolCode, className, authCode, year);
+
+    if (!schoolCode || !className || !authCode || !year) {
+      alert('빈 칸을 모두 입력하세요!');
+      return;
+    } else {
       accessClient
         .post('/api/class', {
-          school_code: code,
+          school_code: schoolCode,
           name: className,
           auth_code: authCode,
           year: year,
         })
         .then(function (response) {
           console.log(response);
-          // localStorage.removeItem('teacher_id');
-          // localStorage.removeItem('teacher_password');
           localStorage.setItem(
             'classId',
             JSON.stringify(response.data.data.class_id),
@@ -220,48 +234,18 @@ export default function NativeSelectDemo() {
         .catch(function (error) {
           console.log(error);
         });
-    } else {
-      console.log('error');
     }
   };
 
-  // 도시에 있는 학교 이름 리스트 만들기
-  const create_school_name = (arr) => {
-    const school_names = [];
-    school_names.push('학교 이름');
+  // 도시에 있는 학교 리스트 만들기
+  const create_school_list = (arr) => {
+    const schools = [];
     for (let i = 0; i < arr.length; i++) {
-      school_names.push(arr[i]['school_name']);
+      const school = { label: arr[i].school_name, value: arr[i].school_code };
+      schools.push(school);
     }
-    return school_names;
+    return schools;
   };
-  // // 처음 랜더링될때 로그인
-  // useEffect(() => {
-  //   const id = localStorage.getItem('teacher_id');
-  //   const password = localStorage.getItem('teacher_password');
-  //   dispatch(teacherLogin({ id, password }));
-  // }, [dispatch]);
-
-  // // 로그인 성공
-  // useEffect(() => {
-  //   if (auth) {
-  //     //console.log('로그인 성공');
-  //     //localStorage.setItem('classId', JSON.stringify(auth.data.classId[0]));
-  //     dispatch(setUser(auth.data.accessToken));
-  //   }
-  // }, [auth, dispatch]);
-
-  // //  로그인 성공하면 토큰 저장
-  // useEffect(() => {
-  //   console.log(user_token);
-  //   if (user_token) {
-  //     try {
-  //       setToken(user_token);
-  //       //localStorage.setItem('teacher_user', JSON.stringify(user_token));
-  //     } catch (e) {
-  //       console.log('ERROR');
-  //     }
-  //   }
-  // }, [user_token]);
 
   // 도시에 있는 학교 리스트 서버에서 가져오기
   useEffect(() => {
@@ -273,9 +257,7 @@ export default function NativeSelectDemo() {
             school_location: city,
           },
         });
-        setSchoolList(response.data.data.school_list);
-        console.log('fetch');
-        setSchoolNameList(create_school_name(response.data.data.school_list));
+        setSchoolList(create_school_list(response.data.data.school_list));
       } catch (e) {
         console.log(e);
       }
@@ -286,99 +268,62 @@ export default function NativeSelectDemo() {
     }
   }, [city]);
 
-  if (!schoolNameList) return setSchoolNameList(null_arr);
-
   // 리턴 !!!!!!!!!
   return (
     <ClassSelectBlock>
       <InputBlock>
-        <Box sx={{ maxWidth: 300 }}>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              City
-            </InputLabel>
-            <NativeSelect
-              //defaultValue={30}
-              onChange={handleChange_city}
-              inputProps={{
-                name: 'city',
-                id: 'uncontrolled-native',
-              }}
-            >
-              {cities.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormControl>
-        </Box>
+        <h2>반 생성하기</h2>
+        {/* 도시 */}
+        <div>
+          <Select
+            styles={customStyles}
+            // width="8rem"
+            options={cityList}
+            placeholder={'도시'}
+            onChange={handleChangeSelect_city}
+          />
+        </div>
+        {/* 학교 */}
+        <div style={{ marginTop: '1rem' }}>
+          <Select
+            styles={customStyles}
+            options={schoolList}
+            placeholder={'학교'}
+            onChange={handleChangeSelect_school}
+          />
+        </div>
 
-        <Box className="margin_top" sx={{ maxWidth: 300 }}>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              School
-            </InputLabel>
-            <NativeSelect
-              //defaultValue={'school'}
-              onChange={handleChange_school}
-              inputProps={{
-                name: 'school',
-                id: 'uncontrolled-native',
-              }}
-            >
-              {schoolNameList.map((school, index) => (
-                <option key={index} value={school}>
-                  {school}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormControl>
-        </Box>
+        {/* 학년 */}
+        <div style={{ marginTop: '1rem' }}>
+          <Select
+            styles={customStyles}
+            options={years}
+            placeholder={'학년'}
+            onChange={handleChangeSelect_year}
+          />
+        </div>
 
         <StyledInput
           className="margin_top"
           autoComplete="class_name"
-          name="class_name"
+          style={{ marginTop: '1rem' }}
           placeholder="반 이름"
           onChange={handleChange_input}
-        ></StyledInput>
+        />
         <StyledInput
           autoComplete="auth_code"
           name="auth_code"
           placeholder="인증코드"
           onChange={handleChange_auth}
-        ></StyledInput>
-        {/* <StyledInput
-          autoComplete="year"
-          name="year"
-          placeholder="학년"
-          onChange={handleChange_year}
-        ></StyledInput> */}
+        />
 
-        <Box className="margin_top" sx={{ maxWidth: 300 }}>
-          <FormControl fullWidth>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              학년
-            </InputLabel>
-            <NativeSelect
-              //defaultValue={'school'}
-              onChange={handleChange_year}
-              inputProps={{
-                name: 'year',
-                id: 'uncontrolled-native',
-              }}
-            >
-              {years.map((year, index) => (
-                <option key={index} value={year}>
-                  {year}
-                </option>
-              ))}
-            </NativeSelect>
-          </FormControl>
-        </Box>
-
-        <StyledButton indigo fullWidth className="margin_top" onClick={onClick}>
+        <StyledButton
+          indigo
+          fullWidth
+          className="margin_top"
+          onClick={onClick}
+          style={{ marginTop: '1rem' }}
+        >
           확인
         </StyledButton>
       </InputBlock>

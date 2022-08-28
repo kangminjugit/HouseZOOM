@@ -1,6 +1,5 @@
 import React from 'react';
-import Header from '../components/base/Header';
-// import MyPageTemplate from '../components/mypage/MyPageTemplate';
+import TeacherHeader from '../components/base/TeacherHeader'; // import MyPageTemplate from '../components/mypage/MyPageTemplate';
 import TeacherMyPageTemplate from '../components/mypage/TeacherMyPageTemplate';
 
 const TeacherMyPage = () => {
@@ -14,7 +13,7 @@ const TeacherMyPage = () => {
   }
   return (
     <>
-      <Header type="teacher" />
+      <TeacherHeader type="마이페이지" />
       <TeacherMyPageTemplate />
     </>
   );

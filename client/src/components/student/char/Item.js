@@ -9,16 +9,20 @@ const ItemBlock = styled.div`
   border-radius: 10px;
   flex-direction: column;
   align-items: center;
+  border: 1px solid ${palette.mint[5]};
   margin: 0.5rem;
-  outline: solid 1px ${palette.gray[3]};
+
+  margin-right: 1rem;
   .img {
     height: 100%;
     width: 100%;
     object-fit: contain;
+    margin-bottom: 0.5rem;
   }
   .div {
     text-align: center;
     font-size: 12px;
+    margin-bottom: 0.3rem;
   }
 `;
 
