@@ -7,7 +7,7 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: '집ZOOM API입니다:) 로그인이 꼭 필요한 api를 다룰 때는 Authorize 버튼을 누르고 빈칸에 Bearer jwt-token을 넣으면 됩니다.(jwt-token은 유저가 로그인할 때 받은 토큰)',
     },
-    host: '13.125.141.137:3000',
+    host: 'http://13.125.141.137:3000',
     // host: 'localhost:3000',
     basePath: '/',
     securityDefinitions: {
