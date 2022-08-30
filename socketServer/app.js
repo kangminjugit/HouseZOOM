@@ -79,18 +79,18 @@ const quizTimeoutFunction = ( classId) => {
           
                 if(quiz.answer === studentAnswer.answer){
                   // api로 db 업데이트
-                  axios.post('http://13.125.141.137:3000/api/point',{
-                    'is_ox': quiz.isOX,
-                    'studentId' : studentAnswer.id,
-                    'point':quiz.point       
-                  },{
-                    headers: { Authorization: `Bearer ${res.teacher.accessToken}` },
-                  } );
+                  // axios.post('http://13.125.141.137:3000/api/point',{
+                  //   'is_ox': quiz.isOX,
+                  //   'studentId' : studentAnswer.id,
+                  //   'point':quiz.point       
+                  // },{
+                  //   headers: { Authorization: `Bearer ${res.teacher.accessToken}` },
+                  // } );
           
                   // api로 db 업데이트
                   axios.post('http://13.125.141.137:3000/api/badge',{
                     'studentId' : elem.id,
-                    'point':quiz.point  ,
+                    'point':quiz.point,
                     'subject': quiz.badge.subject,
                     'description': quiz.badge.description
                   },{
