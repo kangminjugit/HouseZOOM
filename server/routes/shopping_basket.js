@@ -104,7 +104,7 @@ const MessageFactory = require('../template/message');
 
         if(item_id_pairs.length === 0){
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send(MessageFactory.creaetMessage(
+            res.send(MessageFactory.createMessage(
                 'success',
                 200,
                 {},
