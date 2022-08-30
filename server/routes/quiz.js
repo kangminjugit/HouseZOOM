@@ -142,7 +142,7 @@ router.post(`/`,teacherAuthMiddleware, async (req, res, next) => {
         problem: problem,
         isOX: isOX === "True" ? true : false,
         choice: choice,
-        answer: answer === "True" ? true : false,
+        answer: isOX === "True" ? (answer === "True" ? true : false ) : answer,
         timeLimitMin: timeLimitMin,
         timeLimitSec: timeLimitSec,
         point: Number(point),
