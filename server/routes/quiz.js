@@ -140,12 +140,12 @@ router.post(`/`,teacherAuthMiddleware, async (req, res, next) => {
         classId: Number(classId),
         teacherID: teacherID,
         problem: problem,
-        isOX: isOX,
+        isOX: isOX === "True" ? true : false,
         choice: choice,
-        answer: answer,
+        answer: answer === "True" ? true : false,
         timeLimitMin: timeLimitMin,
         timeLimitSec: timeLimitSec,
-        point: point,
+        point: Number(point),
         badgeSubject: badgeSubject,
         badgeDescription: badgeDescription
       });
