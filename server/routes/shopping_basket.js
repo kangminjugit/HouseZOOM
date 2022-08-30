@@ -32,7 +32,7 @@ const MessageFactory = require('../template/message');
         [rows, fields] = await pool.query('select item.id, item.name, item.type, item.price, item.image from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?', [req.id]);
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send(MessageFactory.creaetMessage(
+        res.send(MessageFactory.createMessage(
             'success',
             200,{
                 "items": rows
@@ -122,7 +122,7 @@ const MessageFactory = require('../template/message');
         await connection.query('insert into shopping_basket(item_id, student_id) values ?;', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send(MessageFactory.creaetMessage(
+        res.send(MessageFactory.createMessage(
             'success',
             200,
             {},
@@ -196,7 +196,7 @@ const MessageFactory = require('../template/message');
         await pool.query('delete from shopping_basket where (item_id, student_id) in (?)', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send(MessageFactory.creaetMessage(
+        res.send(MessageFactory.createMessage(
             'success',
             200,
             {},
@@ -294,7 +294,7 @@ const MessageFactory = require('../template/message');
             }
 
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send(MessageFactory.creaetMessage(
+            res.send(MessageFactory.createMessage(
                 'success',
                 200,
                 {},
