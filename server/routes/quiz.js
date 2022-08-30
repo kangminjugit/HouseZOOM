@@ -137,7 +137,7 @@ router.post(`/`,teacherAuthMiddleware, async (req, res, next) => {
       }
       const collection = db.db('housezoom').collection('quiz');
       await collection.insertOne({
-        classId: classId,
+        classId: Number(classId),
         teacherID: teacherID,
         problem: problem,
         isOX: isOX,
