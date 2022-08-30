@@ -132,9 +132,6 @@ const quizTimeoutFunction = ( classId) => {
     });
 
   });
-
-
-  
 };
 
 io.on('connection', (socket) => {

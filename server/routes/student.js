@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../db/config');
 const { teacherAuthMiddleware } = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 
 /**
  * @swagger
@@ -65,14 +66,21 @@ const { teacherAuthMiddleware } = require('../middlewares/authmiddleware');
         }
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            'status': 'success',
-            'code': 200,
-            'data': {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'studentList': rows
             },
-            'message': null
-        });
+            null
+        ));
+        // res.send({
+        //     'status': 'success',
+        //     'code': 200,
+        //     'data': {
+        //         'studentList': rows
+        //     },
+        //     'message': null
+        // });
 
         await connection.release();
     }catch(error){

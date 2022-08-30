@@ -2,6 +2,7 @@ var express = require('express');
 const pool = require('../db/config');
 var router = express.Router();
 const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 
 /**
  * @swagger
@@ -34,16 +35,27 @@ const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/a
         const [rows, fields] = await connection.query('select id,name, point from student where id = ?', [req.id]);
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,
+            {
                 'id': rows[0].id,
                 'name':rows[0].name,
                 'point':rows[0].point
             },
-            "message": null
-        });
+            null
+        ));
+
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'id': rows[0].id,
+        //         'name':rows[0].name,
+        //         'point':rows[0].point
+        //     },
+        //     "message": null
+        // });
         connection.release();
     }catch(error){
         connection.release();
@@ -88,14 +100,21 @@ const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/a
         const [rows, fields] = await pool.query('select id, name, point from student where class_id = ?', [classId]);
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'studentPointArr': rows
             },
-            "message": null
-        });
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'studentPointArr': rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }
@@ -161,14 +180,21 @@ const {teacherAuthMiddleware, studentAuthMiddleware} = require('../middlewares/a
         [rows, fields] = await connection.query('select id, point from student where id = ?', [studentId]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 "updatedPointInfo": rows
             },
-            "message": null
-        });
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "updatedPointInfo": rows
+        //     },
+        //     "message": null
+        // });
         await connection.release();
     }catch(error){
         await connection.release();

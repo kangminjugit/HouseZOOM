@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
+const MessageFactory = require('../template/message');
 
 const saltRounds = 10;
 /**
@@ -85,12 +86,18 @@ const saltRounds = 10;
             [id, name, hashedPassword]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": null,
-            "message": 'Successfully add new teacher'
-        });
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,
+            null,
+            'Successfully add new teacher'
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": null,
+        //     "message": 'Successfully add new teacher'
+        // });
         await connection.release();
     }catch(error){
         await connection.release();
@@ -209,12 +216,18 @@ const saltRounds = 10;
 
             await connection.commit();
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": null,
-                "message": 'Successfully add new student'
-            });
+            res.send(MessageFactory.createMessage(
+                'success',
+                200,
+                null,
+                'Successfully add new student'
+            ));
+            // res.send({
+            //     "status": 'success',
+            //     "code": 200,
+            //     "data": null,
+            //     "message": 'Successfully add new student'
+            // });
             await connection.release();
         }catch(err){
             await connection.rollback();

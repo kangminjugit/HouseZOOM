@@ -2,6 +2,7 @@ var express = require('express');
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
 const {teacherAuthMiddleware, authmiddleware} = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 var router = express.Router();
 
 const saltRounds = 10;
@@ -103,14 +104,19 @@ const saltRounds = 10;
             await connection.commit();
 
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": {
-                    'class_id': newClass.insertId
-                },
-                "message": 'Successfully add new class'
-            }); 
+            res.send(MessageFactory.createMessage(
+                'success', 
+                200, 
+                {'class_id': newClass.insertId}, 
+                'Successfully add new class'));
+            // res.send({
+            //     "status": 'success',
+            //     "code": 200,
+            //     "data": {
+            //         'class_id': newClass.insertId
+            //     },
+            //     "message": 'Successfully add new class'
+            // }); 
             connection.release();
         
         }catch(error){
@@ -203,14 +209,21 @@ const saltRounds = 10;
         );
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'class_list': rows
             },
-            "message": null
-        });  
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'class_list': rows
+        //     },
+        //     "message": null
+        // });  
     }catch(error){
         next(error);
     }
@@ -248,14 +261,21 @@ const saltRounds = 10;
         );
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'classList': rows
             },
-            "message": null
-        });  
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'classList': rows
+        //     },
+        //     "message": null
+        // });  
     }catch(error){
         next(error);
     }
@@ -355,12 +375,18 @@ const saltRounds = 10;
 
             // 정상적으로 행 추가 후엔 새로 추가된 반의 id를 response로 보냄
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": null,
-                "message": 'Successfully delete class'
-            });  
+            res.send(MessageFactory.createMessage(
+                'success',
+                200,
+                null,
+                'Successfully delete class'
+            ));
+            // res.send({
+            //     "status": 'success',
+            //     "code": 200,
+            //     "data": null,
+            //     "message": 'Successfully delete class'
+            // });  
             await connection.release();
         }catch(error){
             await connection.rollback();
@@ -441,14 +467,22 @@ const saltRounds = 10;
 
         const isAuthorized = await bcrypt.compare(auth_code, rows[0]['auth_code']);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'result': isAuthorized
             },
-            "message": null
-        });    
+            null
+        ));
+
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'result': isAuthorized
+        //     },
+        //     "message": null
+        // });    
         await connection.release();      
 
     }catch(error){
@@ -523,14 +557,21 @@ const saltRounds = 10;
         );
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'classInfo': rows[0]
             },
-            "message": null
-        }); 
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         'classInfo': rows[0]
+        //     },
+        //     "message": null
+        // }); 
         await connection.release(); 
     }catch(error){
         await connection.release();

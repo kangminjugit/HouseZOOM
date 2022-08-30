@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../db/config');
 const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 
 /**
  * @swagger
@@ -49,14 +50,21 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
     try{
         [rows, fields] = await pool.query('select * from time_table where class_id = ?', [classId]);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 "time_table": rows
             },
-            "message": null
-        });
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "time_table": rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }

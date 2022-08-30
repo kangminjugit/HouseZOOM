@@ -1,5 +1,6 @@
 var express = require('express');
 const pool = require('../db/config');
+const MessageFactory = require('../template/message');
 var router = express.Router();
 
 /**
@@ -52,14 +53,7 @@ var router = express.Router();
         
         const isDuplicated = rows.length>0;
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "isDuplicated": isDuplicated
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {'isDuplicated': isDuplicated}, null));
     }catch(error){
         next(error);
     }
@@ -111,14 +105,7 @@ var router = express.Router();
         
         const isDuplicated = rows.length>0;
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "isDuplicated": isDuplicated
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {"isDuplicated": isDuplicated}, null));
     }catch(error){
         next(error);
     }

@@ -2,6 +2,7 @@ var express = require('express');
 const pool = require('../db/config');
 var router = express.Router();
 const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 
 /**
  * @swagger
@@ -55,14 +56,15 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
     try{
         [rows, fields] = await pool.query('select item.id, item.name, item.type, item.image from my_item,item where my_item.item_id=item.id and my_item.is_cur=1 and my_item.student_id=?', [req.id]);
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "items": rows
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {'items': rows}, null));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "items": rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }
@@ -112,14 +114,15 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "items": rows
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {'items':rows}, null));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "items": rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }
@@ -176,12 +179,13 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": '아이템을 성공적으로 착용하였습니다.'
-        });
+        res.send(MessageFactory.createMessage('success', 200, {}, '아이템을 성공적으로 착용하였습니다.'));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {},
+        //     "message": '아이템을 성공적으로 착용하였습니다.'
+        // });
     }catch(error){
         next(error);
     }
@@ -238,12 +242,13 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": '아이템을 성공적으로 해제하였습니다.'
-        });
+        res.send(MessageFactory.createMessage('success', 200, {}, '아이템을 성공적으로 해제하였습니다.'));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {},
+        //     "message": '아이템을 성공적으로 해제하였습니다.'
+        // });
     }catch(error){
         next(error);
     }
@@ -326,14 +331,15 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         }
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "result": result
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {'result':result}, null));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "result": result
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }

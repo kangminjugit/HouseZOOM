@@ -10,7 +10,7 @@ module.exports = {
         };
 
         return jwt.sign(payload, config.secret, {
-            expiresIn: '2h'
+            expiresIn: '24h'
         });
     },
     verify: (accessToken) => {

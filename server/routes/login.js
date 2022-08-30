@@ -3,6 +3,7 @@ var router = express.Router();
 const pool = require('../db/config');
 const bcrypt = require('bcrypt');
 const jwtUtil = require('../utils/jwt-util');
+const MessageFactory = require('../template/message');
 
 const saltRounds = 10;
 
@@ -59,6 +60,7 @@ const saltRounds = 10;
 
 router.post('/teacher', async (req, res, next) => {
     const {id, password} = req.body;
+
     // id, password 중 하나라도 없으면 에러
     if(id === ''  || password === '' ){
         const error = new Error('id, password are required!');
@@ -69,7 +71,8 @@ router.post('/teacher', async (req, res, next) => {
 
     const connection = await pool.getConnection(async conn => conn);
     try{
-        var [rows, fields] = await connection.query('SELECT * FROM teacher WHERE id = ?', [id]);
+        var [rows, fields] = await connection.query('select * from teacher where id = ?', id);
+
         if(rows.length === 0){
             const error = new Error('등록되지 않은 아이디입니다!');
             error.status = 401;
@@ -89,9 +92,9 @@ router.post('/teacher', async (req, res, next) => {
             id:id,
             name: rows[0].name
         });
-        // const refreshToken = jwtUtil.refresh();
+        const refreshToken = jwtUtil.refresh();
 
-        // await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+        await connection.query('UPDATE teacher SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         [rows, fields] = await connection.query('select class_id from class_teacher where teacher_id = ?', [
             id
@@ -101,17 +104,16 @@ router.post('/teacher', async (req, res, next) => {
         res
         .cookie("accessToken", accessToken, {
             httpOnly: true,
-        }).send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        }).send(MessageFactory.createMessage(
+            'success',
+            200,{
                 "accessToken": accessToken,
-//                 "refreshToken": refreshToken,
+                "refreshToken": refreshToken,
                 "classId" : rows.map(elem => elem.class_id),
                 'name':name
             },
-            "message": 'login success'
-        });
+            'login success'
+        ));
 
     }catch(error){
         next(error);
@@ -192,27 +194,25 @@ router.post('/teacher', async (req, res, next) => {
             id:id,
             name: rows[0].name
         });
-        // const refreshToken = jwtUtil.refresh();
+        const refreshToken = jwtUtil.refresh();
 
-        // [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
+        [rows, fields] = await connection.query('UPDATE student SET refresh_token = ? WHERE id = ?', [refreshToken, id]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
         res
         .cookie("accessToken", accessToken, {
             httpOnly: true,
         })
-        .send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        .send(MessageFactory.createMessage(
+            'success',
+            200,{
                 "accessToken": accessToken,
-//                 "refreshToken": refreshToken,
+                "refreshToken": refreshToken,
                 "classId": class_id,
                 'name':name
             },
-            "message": 'login success'
-        });
-
+            'login success'
+        ));
         await connection.release();
 
     }catch(error){

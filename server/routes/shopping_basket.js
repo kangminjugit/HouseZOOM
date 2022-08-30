@@ -2,6 +2,7 @@ var express = require('express');
 const pool = require('../db/config');
 var router = express.Router();
 const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
+const MessageFactory = require('../template/message');
 
 
 /**
@@ -31,14 +32,21 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         [rows, fields] = await pool.query('select item.id, item.name, item.type, item.price, item.image from shopping_basket, item where shopping_basket.item_id = item.id and shopping_basket.student_id = ?', [req.id]);
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
+        res.send(MessageFactory.creaetMessage(
+            'success',
+            200,{
                 "items": rows
             },
-            "message": null
-        });
+            null
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "items": rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }
@@ -96,24 +104,36 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
 
         if(item_id_pairs.length === 0){
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": {},
-                "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
-            });       
+            res.send(MessageFactory.creaetMessage(
+                'success',
+                200,
+                {},
+                '아이템이 성공적으로 장바구니에 추가되었습니다.'
+            ));
+            // res.send({
+            //     "status": 'success',
+            //     "code": 200,
+            //     "data": {},
+            //     "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
+            // });       
             return;
         }
 
         await connection.query('insert into shopping_basket(item_id, student_id) values ?;', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
-        });
+        res.send(MessageFactory.creaetMessage(
+            'success',
+            200,
+            {},
+            '아이템이 성공적으로 장바구니에 추가되었습니다.'
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {},
+        //     "message": '아이템이 성공적으로 장바구니에 추가되었습니다.'
+        // });
 
         connection.release();
     }catch(error){
@@ -176,12 +196,18 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
         await pool.query('delete from shopping_basket where (item_id, student_id) in (?)', [item_id_pairs]);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": '아이템이 성공적으로 장바구니에서 삭제되었습니다.'
-        });
+        res.send(MessageFactory.creaetMessage(
+            'success',
+            200,
+            {},
+            '아이템이 성공적으로 장바구니에서 삭제되었습니다.'
+        ));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {},
+        //     "message": '아이템이 성공적으로 장바구니에서 삭제되었습니다.'
+        // });
     }catch(error){
         if(error.code === 'ER_NO_REFERENCED_ROW_2'){
             let error = new Error('전체 아이템 리스트에 존재하지 않는 아이템이 있습니다.');
@@ -268,12 +294,18 @@ const {studentAuthMiddleware} = require('../middlewares/authmiddleware');
             }
 
             res.set({ 'content-type': 'application/json; charset=utf-8' });
-            res.send({
-                "status": 'success',
-                "code": 200,
-                "data": {},
-                "message": '장바구니에 있는 아이템을 성공적으로 구매하였습니다.'
-            });
+            res.send(MessageFactory.creaetMessage(
+                'success',
+                200,
+                {},
+                '장바구니에 있는 아이템을 성공적으로 구매하였습니다.'
+            ));
+            // res.send({
+            //     "status": 'success',
+            //     "code": 200,
+            //     "data": {},
+            //     "message": '장바구니에 있는 아이템을 성공적으로 구매하였습니다.'
+            // });
 
         }catch(err){
             for(var i=0; i<3; i++){

@@ -2,6 +2,8 @@ var express = require('express');
 const pool = require('../db/config');
 var router = express.Router();
 const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
+const HeaderFactory = require('../template/header');
+const MessageFactory = require('../template/message');
 
 /**
  * @swagger
@@ -63,16 +65,9 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
             `SELECT id, name FROM student WHERE class_id = ? AND isAccepted = ?`,
             [classId, 'WAIT']
         );
-
+        
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                'student_list': rows
-            },
-            "message": null
-        });  
+        res.send(MessageFactory.createMessage('success', 200, {'student_list': rows}, null));
     }catch(error){
         next(error);
     }
@@ -130,12 +125,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         );
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": `${studentId}를 정상적으로 승인했습니다.`
-        }); 
+        res.send(MessageFactory.createMessage('success', 200, {}, `${studentId}를 정상적으로 승인했습니다.`));
     }catch(err){
         next(err);
     }
@@ -196,12 +186,7 @@ const {teacherAuthMiddleware} = require('../middlewares/authmiddleware');
         );
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {},
-            "message": `${studentId}를 정상적으로 거절했습니다.`
-        }); 
+        res.send(MessageFactory.createMessage('success', 200, {}, `${studentId}를 정상적으로 거절했습니다.`));
     }catch(err){
         next(err);
     }

@@ -1,5 +1,6 @@
 var express = require('express');
 const pool = require('../db/config');
+const MessageFactory = require('../template/message');
 var router = express.Router();
 
 /**
@@ -41,14 +42,21 @@ router.get('/cities',  async (req, res, next) => {
         const [rows] = await pool.query(`SELECT DISTINCT school_location FROM school ORDER BY school_location`);
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            'status': 'success',
-            'code': 200,
-            'data': {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'city_list': rows.map(row => row['school_location'])
             },
-            'message': null
-        });
+            null
+        ));
+        // res.send({
+        //     'status': 'success',
+        //     'code': 200,
+        //     'data': {
+        //         'city_list': rows.map(row => row['school_location'])
+        //     },
+        //     'message': null
+        // });
     }catch(error){
         next(error);
     }
@@ -115,14 +123,21 @@ router.get(`/location`, async (req, res, next) => {
         }
 
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            'status': 'success',
-            'code': 200,
-            'data': {
+        res.send(MessageFactory.createMessage(
+            'success',
+            200,{
                 'school_list': rows
             },
-            'message': null
-        });
+            null
+        ));
+        // res.send({
+        //     'status': 'success',
+        //     'code': 200,
+        //     'data': {
+        //         'school_list': rows
+        //     },
+        //     'message': null
+        // });
     }catch(error){
         next(error);
     }

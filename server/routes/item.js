@@ -1,5 +1,6 @@
 var express = require('express');
 const pool = require('../db/config');
+const MessageFactory = require('../template/message');
 var router = express.Router();
 
 
@@ -52,14 +53,17 @@ var router = express.Router();
         }
         
         res.set({ 'content-type': 'application/json; charset=utf-8' });
-        res.send({
-            "status": 'success',
-            "code": 200,
-            "data": {
-                "items": rows
-            },
-            "message": null
-        });
+        res.send(MessageFactory.createMessage('success', 200, {
+            "items": rows
+        },null));
+        // res.send({
+        //     "status": 'success',
+        //     "code": 200,
+        //     "data": {
+        //         "items": rows
+        //     },
+        //     "message": null
+        // });
     }catch(error){
         next(error);
     }
