@@ -422,7 +422,84 @@ io.on('connection', (socket) => {
     });
 
   });
-  
+
+  socket.on('save_ox_quiz', (data, callback) => {
+    const {data: {classId,teacherId,accessToken, problem, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
+
+    // MongoDB에 퀴즈 정보 저장
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection('quiz');
+      const doc = {
+        id: new Date().getTime(),
+        classId: classId,
+        problem: problem,
+        isOX: true,
+        choices: ['O','X'],
+        answer: answer,
+        timeLimit: {min: timeLimitMin, sec:timeLimitSec},
+        point: point,
+        badge: {subject:badgeSubject, description: badgeDescription},
+      };
+
+      collection.insertOne(doc, function(err, res){
+        if(err) throw err;
+        db.close();
+      });
+    });  
+  });
+
+  socket.on('save_choice_quiz', (data, callback) => {
+    const {data: {classId,teacherId,accessToken, problem, multiChoices, answer, timeLimitMin, timeLimitSec, point, badgeSubject, badgeDescription}} = data;
+
+    // MongoDB에 퀴즈 정보 저장
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection('quiz');
+      const doc = {
+        id: new Date().getTime(),
+        classId: classId,
+        problem: problem,
+        isOX: false,
+        choices: multiChoices,
+        answer: answer,
+        timeLimit: {min: timeLimitMin, sec:timeLimitSec},
+        point: point,
+        badge: {subject:badgeSubject, description: badgeDescription},
+      };
+
+      collection.insertOne(doc, function(err, res){
+        if(err) throw err;
+        db.close();
+      });
+    });  
+  });
+
+  socket.on('get_saved_quiz', (data, callback) => {
+    const {data: {classId}} = data;
+
+    // MongoDB에 퀴즈 정보 저장
+    mongoClient.connect('mongodb://ec2-13-209-14-200.ap-northeast-2.compute.amazonaws.com', function(err, db){
+      if(err) throw err;
+      const collection = db.db(DB).collection('quiz');
+      const query = {
+        classId: classId
+      };
+      const options = {
+        sort: {id : -1}
+      };
+
+      const cursor = collection.find(query, options);
+      const allValues = await cursor.toArray();
+
+      socket.to(classId).emit('get_saved_quiz', {
+        'data':{
+          'quizArr' : allValues
+        }
+      });
+      db.close();
+    });  
+  });
 });
 
 
